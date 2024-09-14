@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GammaTube</title>
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Header and menu styles */
+        #menu-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-light);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+
+        #menu-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .menu {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            background-color: var(--card-bg-light);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
+
+        .menu.dark-mode {
+            background-color: var(--card-bg-dark);
+        }
+
+        .menu button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu button.dark-mode {
+            color: var(--text-dark);
+        }
+
+        .menu button:hover {
+            background-color: var(--primary-light);
+        }
+
+        .menu button.dark-mode:hover {
+            background-color: var(--primary-dark);
+        }
+        /* Search container styles */
+        #search-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        #search-bar {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #search-button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background: var(--primary-light);
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #search-button:hover {
+            background: var(--primary-dark);
+        }
+
+
+        /* Video container styles */
+        #video-container {
+            padding: 20px;
+        }
+
+        .video-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--card-bg-light);
+            transition: background-color 0.3s;
+        }
+
+        .video-card.dark-mode {
+            background: var(--card-bg-dark);
+        }
+
+        .video-card img {
+            width: 120px;
+            height: 90px;
+        }
+
+        .video-card h3 {
+            margin: 10px;
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        .video-card.dark-mode h3 {
+            color: var(--text-dark);
+        }
+
+        /* Suggested videos section styles */
+        #suggested-videos {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: var(--suggested-videos-bg-light);
+        }
+
+        #suggested-videos h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .suggested-video-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--card-bg-light);
+            transition: background-color 0.3s;
+        }
+
+        .suggested-video-card.dark-mode {
+            background: var(--card-bg-dark);
+        }
+
+        .suggested-video-card img {
+            width: 120px;
+            height: 90px;
+        }
+
+        .suggested-video-card h3 {
+            margin: 10px;
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        .suggested-video-card.dark-mode h3 {
+            color: var(--text-dark);
+        }
+
+        /* CSS variables for light and dark mode */
+        :root {
+            --bg-light: #ffffff;
+            --bg-dark: #121212;
+            --text-light: #000000;
+            --text-dark: #ffffff;
+            --card-bg-light: #f9f9f9;
+            --card-bg-dark: #333333;
+            --button-bg-light: #007bff;
+            --button-bg-dark: #1e90ff;
+            --button-text-light: #ffffff;
+            --button-text-dark: #ffffff;
+            --button-bg-hover-light: #0056b3;
+            --button-bg-hover-dark: #1c86ee;
+            --search-bg-light: #eeeeee;
+            --search-border-light: #cccccc;
+            --menu-bg-light: #ffffff;
+            --menu-border-light: #dddddd;
+            --menu-bg-dark: #1e1e1e;
+            --menu-border-dark: #333333;
+            --suggested-videos-bg-light: #f0f0f0;
+        }
+
+        .dark-mode {
+            --bg-light: #121212;
+            --text-light: #ffffff;
+            --card-bg-light: #333333;
+            --button-bg-light: #1e90ff;
+            --button-text-light: #ffffff;
+            --button-bg-hover-light: #1c86ee;
+            --search-bg-light: #333333;
+            --search-border-light: #444444;
+            --menu-bg-light: #1e1e1e;
+            --menu-border-light: #333333;
+            --suggested-videos-bg-light: #1e1e1e;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-button">⋮</div>
+    <div class="menu">
+        <button id="toggle-dark-mode">Toggle Dark Mode</button>
+    </div>
+
+    <div id="search-container">
+        <input type="text" id="search-bar" placeholder="Search for videos...">
+        <button id="search-button">Search</button>
+    </div>
+
+    <div id="video-container">
+        <!-- Video items will be dynamically inserted here -->
+    </div>
+
+    <div id="suggested-videos">
+        <h2>Suggested Videos</h2>
+        <div class="suggested-video-card">
+            <a href="/watch?v=JkCWvSxSRMA">
+                <img src="https://img.youtube.com/vi/JkCWvSxSRMA/hqdefault.jpg" alt="Jay got his revenge">
+                <h3>Jay got his revenge</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=imIRAiuOd8Q">
+                <img src="https://img.youtube.com/vi/imIRAiuOd8Q/hqdefault.jpg" alt="The Super Mario Bros. Movie Trailer - (Sonic The Hedgehog 3 Style)">
+                <h3>The Super Mario Bros. Movie Trailer - (Sonic The Hedgehog 3 Style)</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=c9tBY6dC7Nw">
+                <img src="https://img.youtube.com/vi/c9tBY6dC7Nw/hqdefault.jpg" alt="NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies">
+                <h3>NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies</h3>
+            </a>
+        </div>
+        <!-- Additional child-appropriate video suggestions -->
+        <div class="suggested-video-card">
+            <a href="/watch?v=JuJQTFQ5rM4">
+                <img src="https://img.youtube.com/vi/JuJQTFQ5rM4/hqdefault.jpg" alt="LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s">
+                <h3>LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=CZprM9uk-1M">
+                <img src="https://img.youtube.com/vi/CZprM9uk-1M/hqdefault.jpg" alt="DRAGON BALL: Sparking! ZERO – Majin Buu Saga Character Trailer">
+                <h3>DRAGON BALL: Sparking! ZERO – Majin Buu Saga Character Trailer</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=GDmNktu_bGE">
+                <img src="https://img.youtube.com/vi/GDmNktu_bGE/hqdefault.jpg" alt="Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial">
+                <h3>Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=MyBb5Dk4lzs">
+                <img src="https://img.youtube.com/vi/MyBb5Dk4lzs/hqdefault.jpg" alt="Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes">
+                <h3>Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=WFbXi8SMgNA">
+                <img src="https://img.youtube.com/vi/WFbXi8SMgNA/hqdefault.jpg" alt="Home - S1 E2 | | LEGO NINJAGO | Full Episodes">
+                <h3>Home - S1 E2 | | LEGO NINJAGO | Full Episodes</h3>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menu-button');
+            const menu = document.querySelector('.menu');
+            const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
+            const searchButton = document.getElementById('search-button');
+            const searchBar = document.getElementById('search-bar');
+            const videoContainer = document.getElementById('video-container');
+
+            menuButton.addEventListener('click', () => {
+                menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+            });
+
+            toggleDarkModeButton.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                menu.classList.toggle('dark-mode');
+                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+            });
+
+            searchButton.addEventListener('click', () => {
+                searchVideos();
+            });
+
+            searchBar.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    searchVideos();
+                }
+            });
+
+            function searchVideos() {
+                const query = searchBar.value.trim();
+                if (query) {
+                    window.location.href = `/search?query=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
