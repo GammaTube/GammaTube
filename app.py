@@ -14,7 +14,7 @@ def search_page():
     print(f"Search page accessed with query: {query}")
     if query:
         try:
-            search = VideosSearch(query, limit=15)
+            search = VideosSearch(query, limit=20)
             results = search.result()
             
             videos = []
