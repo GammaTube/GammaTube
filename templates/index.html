@@ -82,6 +82,7 @@
         .menu button.dark-mode:hover {
             background-color: var(--primary-dark);
         }
+        
         /* Search container styles */
         #search-container {
             display: flex;
@@ -113,7 +114,6 @@
         #search-button:hover {
             background: var(--primary-dark);
         }
-
 
         /* Video container styles */
         #video-container {
@@ -236,6 +236,7 @@
     <div id="menu-button">⋮</div>
     <div class="menu">
         <button id="toggle-dark-mode">Toggle Dark Mode</button>
+        <button id="login-button">Login</button> <!-- Added Login button -->
     </div>
 
     <div id="search-container">
@@ -270,60 +271,52 @@
         <!-- Additional child-appropriate video suggestions -->
         <div class="suggested-video-card">
             <a href="/watch?v=JuJQTFQ5rM4">
-                <img src="https://img.youtube.com/vi/JuJQTFQ5rM4/hqdefault.jpg" alt="Big Trouble in Little Ninjago | LEGO NINJAGO® Dragons Rising">
-                <h3>Big Trouble in Little Ninjago | LEGO NINJAGO® Dragons Rising</h3>
+                <img src="https://img.youtube.com/vi/JuJQTFQ5rM4/hqdefault.jpg" alt="Mia's Magic Playground | LEGO Friends | #Shorts">
+                <h3>Mia's Magic Playground | LEGO Friends | #Shorts</h3>
             </a>
         </div>
         <div class="suggested-video-card">
-            <a href="/watch?v=9bMRWJhHYfI">
-                <img src="https://img.youtube.com/vi/9bMRWJhHYfI/hqdefault.jpg" alt="Lego Ninjago: Master of Spinjitzu - Season 1 Trailer">
-                <h3>Lego Ninjago: Master of Spinjitzu - Season 1 Trailer</h3>
+            <a href="/watch?v=2MkPPIqIQUU">
+                <img src="https://img.youtube.com/vi/2MkPPIqIQUU/hqdefault.jpg" alt="How to Make LEGO NinjaGo Toys - LEGO Ninjago Nya's Water Dragon">
+                <h3>How to Make LEGO NinjaGo Toys - LEGO Ninjago Nya's Water Dragon</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=hbwEwKxHPd4">
+                <img src="https://img.youtube.com/vi/hbwEwKxHPd4/hqdefault.jpg" alt="Ultimate LEGO Play | LEGO Ninjago 2024 Summer Set Reviews!">
+                <h3>Ultimate LEGO Play | LEGO Ninjago 2024 Summer Set Reviews!</h3>
             </a>
         </div>
     </div>
 
     <script>
+        // Menu button functionality
         const menuButton = document.getElementById('menu-button');
         const menu = document.querySelector('.menu');
-        const darkModeToggle = document.getElementById('toggle-dark-mode');
-        const body = document.body;
-
         menuButton.addEventListener('click', () => {
             menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
         });
 
-        darkModeToggle.addEventListener('click', () => {
+        // Dark mode toggle functionality
+        const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
+        const body = document.body;
+        toggleDarkModeButton.addEventListener('click', () => {
             body.classList.toggle('dark-mode');
             menu.classList.toggle('dark-mode');
-            document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
-            document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
         });
 
-        // Dynamically insert video items (example)
-        const videoContainer = document.getElementById('video-container');
-        const videos = [
-            {
-                title: 'How to Make Sushi',
-                thumbnail: 'https://img.youtube.com/vi/abcdefg/hqdefault.jpg',
-                link: '/watch?v=abcdefg'
-            },
-            {
-                title: 'Understanding Quantum Physics',
-                thumbnail: 'https://img.youtube.com/vi/hijklmn/hqdefault.jpg',
-                link: '/watch?v=hijklmn'
-            }
-        ];
+        // Search functionality
+        const searchButton = document.getElementById('search-button');
+        const searchBar = document.getElementById('search-bar');
+        searchButton.addEventListener('click', () => {
+            const query = searchBar.value;
+            alert('Searching for: ' + query); // This is where you would handle the search
+        });
 
-        videos.forEach(video => {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.innerHTML = `
-                <a href="${video.link}">
-                    <img src="${video.thumbnail}" alt="${video.title}">
-                    <h3>${video.title}</h3>
-                </a>
-            `;
-            videoContainer.appendChild(card);
+        // Login button functionality (example)
+        const loginButton = document.getElementById('login-button');
+        loginButton.addEventListener('click', () => {
+            alert('Login button clicked!'); // Replace with actual login functionality
         });
     </script>
 </body>
