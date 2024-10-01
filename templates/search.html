@@ -5,162 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GammaTube - Search</title>
     <style>
-        :root {
-            --background-light: #f9f9f9;
-            --background-dark: #121212;
-            --text-light: #000;
-            --text-dark: #fff;
-            --primary-light: #ff0000;
-            --primary-dark: #cc0000;
-            --card-bg-light: #fff;
-            --card-bg-dark: #1e1e1e;
-        }
+        /* Your existing CSS here... */
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--background-light);
-            color: var(--text-light);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body.dark-mode {
-            background-color: var(--background-dark);
-            color: var(--text-dark);
-        }
-
-        #search-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px;
-        }
-
-        #search-bar {
-            width: 100%;
-            max-width: 600px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        #search-button {
-            padding: 10px 20px;
-            margin-left: 10px;
-            background: var(--primary-light);
-            border: none;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #search-button:hover {
-            background: var(--primary-dark);
-        }
-
-        #video-container {
+        /* Additional styling for playlists section */
+        #playlist-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
-        }
-
-        .video-card {
-            flex: 1 1 calc(33% - 20px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            background: var(--card-bg-light);
-            transition: background-color 0.3s;
-        }
-
-        .video-card.dark-mode {
-            background: var(--card-bg-dark);
-        }
-
-        .video-card img {
-            width: 100%;
-            height: auto;
-        }
-
-        .video-card a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .video-card h3 {
-            margin: 10px;
-            font-size: 16px;
-            color: var(--text-light);
-        }
-
-        .video-card.dark-mode h3 {
-            color: var(--text-dark);
-        }
-
-        #menu-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary-light);
-            color: var(--text-light);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 24px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s;
-        }
-
-        #menu-button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .menu {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            display: none;
-            flex-direction: column;
-            align-items: flex-end;
-            background-color: var(--card-bg-light);
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            padding: 10px;
-        }
-
-        .menu.dark-mode {
-            background-color: var(--card-bg-dark);
-        }
-
-        .menu button {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 16px;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .menu button.dark-mode {
-            color: var(--text-dark);
-        }
-
-        .menu button:hover {
-            background-color: var(--primary-light);
-        }
-
-        .menu button.dark-mode:hover {
-            background-color: var(--primary-dark);
         }
     </style>
 </head>
@@ -171,12 +23,18 @@
     </div>
 
     <div id="search-container">
-        <input type="text" id="search-bar" placeholder="Search for videos...">
+        <input type="text" id="search-bar" placeholder="Search for videos or playlists...">
         <button id="search-button">Search</button>
     </div>
 
+    <h2>Videos</h2>
     <div id="video-container">
         <!-- Video items will be dynamically inserted here -->
+    </div>
+
+    <h2>Playlists</h2>
+    <div id="playlist-container">
+        <!-- Playlist items will be dynamically inserted here -->
     </div>
 
     <script>
@@ -187,11 +45,12 @@
             const searchButton = document.getElementById('search-button');
             const searchBar = document.getElementById('search-bar');
             const videoContainer = document.getElementById('video-container');
+            const playlistContainer = document.getElementById('playlist-container');
             
             const query = new URLSearchParams(window.location.search).get('query');
             if (query) {
                 searchBar.value = query;
-                searchVideos(query);
+                searchVideosAndPlaylists(query);
             }
 
             menuButton.addEventListener('click', () => {
@@ -202,13 +61,14 @@
                 document.body.classList.toggle('dark-mode');
                 menu.classList.toggle('dark-mode');
                 document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.playlist-card').forEach(card => card.classList.toggle('dark-mode'));
             });
 
             searchButton.addEventListener('click', () => {
                 const query = searchBar.value.trim();
                 if (query) {
                     updateURL(query);
-                    searchVideos(query);
+                    searchVideosAndPlaylists(query);
                 }
             });
 
@@ -217,7 +77,7 @@
                     const query = searchBar.value.trim();
                     if (query) {
                         updateURL(query);
-                        searchVideos(query);
+                        searchVideosAndPlaylists(query);
                     }
                 }
             });
@@ -228,7 +88,7 @@
                 window.history.pushState({}, '', newURL);
             }
 
-            function searchVideos(query) {
+            function searchVideosAndPlaylists(query) {
                 fetch(`/api/search?query=${encodeURIComponent(query)}`)
                     .then(response => {
                         if (!response.ok) {
@@ -238,8 +98,9 @@
                     })
                     .then(data => {
                         console.log('Search results:', data); // Debugging line
-                        if (Array.isArray(data)) {
-                            videoContainer.innerHTML = data.map(video => `
+                        // Render videos
+                        if (Array.isArray(data.videos)) {
+                            videoContainer.innerHTML = data.videos.map(video => `
                                 <div class="video-card">
                                     <a href="/watch?v=${new URL(video.src).searchParams.get('v')}">
                                         <img src="${video.thumbnail}" alt="${video.title}">
@@ -250,10 +111,25 @@
                         } else {
                             videoContainer.innerHTML = '<p>No videos found.</p>';
                         }
+                        
+                        // Render playlists
+                        if (Array.isArray(data.playlists)) {
+                            playlistContainer.innerHTML = data.playlists.map(playlist => `
+                                <div class="playlist-card">
+                                    <a href="${playlist.src}">
+                                        <img src="${playlist.thumbnail}" alt="${playlist.title}">
+                                        <h3>${playlist.title}</h3>
+                                    </a>
+                                </div>
+                            `).join('');
+                        } else {
+                            playlistContainer.innerHTML = '<p>No playlists found.</p>';
+                        }
                     })
                     .catch(error => {
                         console.error('Error fetching search results:', error);
                         videoContainer.innerHTML = '<p>Failed to load videos. Please try again later.</p>';
+                        playlistContainer.innerHTML = '<p>Failed to load playlists. Please try again later.</p>';
                     });
             }
         });
