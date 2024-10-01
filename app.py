@@ -14,29 +14,43 @@ def search_page():
     print(f"Search page accessed with query: {query}")
     if query:
         try:
-            # Search for videos
+            # Search for both videos and playlists
             video_search = VideosSearch(query, limit=10)
-            video_results = video_search.result()
-
-            # Search for playlists
             playlist_search = PlaylistsSearch(query, limit=10)
+
+            video_results = video_search.result()
             playlist_results = playlist_search.result()
 
-            videos = []
+            items = []
+
+            # Add video results
             for item in video_results['result']:
                 title = item['title']
                 video_url = 'https://www.youtube.com/watch?v=' + item['id']
                 thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-                videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
+                
+                items.append({
+                    'type': 'video',
+                    'title': title,
+                    'src': video_url,
+                    'thumbnail': thumbnail
+                })
 
-            playlists = []
+            # Add playlist results
             for item in playlist_results['result']:
                 title = item['title']
                 playlist_url = 'https://www.youtube.com/playlist?list=' + item['id']
                 thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-                playlists.append({'title': title, 'src': playlist_url, 'thumbnail': thumbnail})
+                
+                items.append({
+                    'type': 'playlist',
+                    'title': title,
+                    'src': playlist_url,
+                    'thumbnail': thumbnail
+                })
 
-            return render_template('search.html', videos=videos, playlists=playlists, query=query)
+            return render_template('search.html', items=items, query=query)
+
         except Exception as e:
             print(f"Error during search: {e}")
             return render_template('search.html', error='An error occurred during the search')
@@ -51,29 +65,43 @@ def search():
         return jsonify({'error': 'No query provided'}), 400
 
     try:
-        # Search for videos
+        # Search for both videos and playlists
         video_search = VideosSearch(query, limit=10)
-        video_results = video_search.result()
-
-        # Search for playlists
         playlist_search = PlaylistsSearch(query, limit=10)
+
+        video_results = video_search.result()
         playlist_results = playlist_search.result()
 
-        videos = []
+        items = []
+
+        # Add video results
         for item in video_results['result']:
             title = item['title']
             video_url = 'https://www.youtube.com/watch?v=' + item['id']
             thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-            videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
+            
+            items.append({
+                'type': 'video',
+                'title': title,
+                'src': video_url,
+                'thumbnail': thumbnail
+            })
 
-        playlists = []
+        # Add playlist results
         for item in playlist_results['result']:
             title = item['title']
             playlist_url = 'https://www.youtube.com/playlist?list=' + item['id']
             thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-            playlists.append({'title': title, 'src': playlist_url, 'thumbnail': thumbnail})
+            
+            items.append({
+                'type': 'playlist',
+                'title': title,
+                'src': playlist_url,
+                'thumbnail': thumbnail
+            })
 
-        return jsonify({'videos': videos, 'playlists': playlists})
+        return jsonify(items)
+
     except Exception as e:
         print(f"Error during search: {e}")
         return jsonify({'error': 'An error occurred during the search'}), 500
