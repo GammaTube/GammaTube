@@ -1,27 +1,31 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
 from youtubesearchpython import VideosSearch
-import json
 import os
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'  # Required for session management and flashing messages
 
-# File to store account information
-ACCOUNTS_FILE = 'accounts.json'
+# Configuration for the database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 
 
-def load_accounts():
-    """Load accounts from the JSON file."""
-    if not os.path.exists(ACCOUNTS_FILE):
-        return {}
-    with open(ACCOUNTS_FILE, 'r') as f:
-        return json.load(f)
+# Database model for the user accounts
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
 
 
-def save_accounts(accounts):
-    """Save accounts to the JSON file."""
-    with open(ACCOUNTS_FILE, 'w') as f:
-        json.dump(accounts, f)
+# Initialize the database (create tables)
+with app.app_context():
+    db.create_all()
 
 
 @app.route('/')
@@ -38,15 +42,15 @@ def search_page():
         try:
             search = VideosSearch(query, limit=20)
             results = search.result()
-            
+
             videos = []
             for item in results['result']:
                 title = item['title']
                 video_url = 'https://www.youtube.com/watch?v=' + item['id']
                 thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-                
+
                 videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
-            
+
             return render_template('search.html', videos=videos, query=query)
         except Exception as e:
             print(f"Error during search: {e}")
@@ -65,15 +69,15 @@ def search():
     try:
         search = VideosSearch(query, limit=15)
         results = search.result()
-        
+
         videos = []
         for item in results['result']:
             title = item['title']
             video_url = 'https://www.youtube.com/watch?v=' + item['id']
             thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-            
+
             videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
-        
+
         return jsonify(videos)
     except Exception as e:
         print(f"Error during search: {e}")
@@ -92,17 +96,18 @@ def signup():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
-        accounts = load_accounts()
 
-        if username in accounts:
+        # Check if the username already exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
             flash('Username already exists!', 'error')
             return redirect(url_for('signup'))
 
-        # Save the account info
-        accounts[username] = password
-        save_accounts(accounts)
-        
+        # Create a new user and add it to the database
+        new_user = User(username=username, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+
         flash('Signup successful! You can now log in.', 'success')
         return redirect(url_for('login'))
 
@@ -115,16 +120,17 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        accounts = load_accounts()
-
-        if username in accounts and accounts[username] == password:
+        # Retrieve the user from the database
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
             flash('Login successful!', 'success')
             return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
         else:
             flash('Invalid username or password!', 'error')
             return redirect(url_for('login'))
 
-    return render_template('login.html')  # Ensure you have this template
+    return render_template('login.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
