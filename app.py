@@ -124,8 +124,7 @@ def login():
             flash('Invalid username or password!', 'error')
             return redirect(url_for('login'))
 
-    return render_template('login.html')
-
+    return render_template('login.html')  # Ensure you have this template
 
 if __name__ == '__main__':
     app.run(debug=True)
