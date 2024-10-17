@@ -34,6 +34,12 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/secret-page')
+def index():
+    print("Index route accessed")
+    return render_template('secret.html')
+
+
 @app.route('/search')
 def search_page():
     query = request.args.get('query', '')
