@@ -128,10 +128,9 @@ def playlist_search():
             title = item.get('title', 'No title')
             thumbnail = item['thumbnails'][0]['url'] if item.get('thumbnails') else 'https://via.placeholder.com/120x90'
             playlist_url = 'https://www.youtube.com/playlist?list=' + item['id']
-            
-            # Extracting the playlist ID from the playlist URL
-            match = re.search(r'list=([a-zA-Z0-9_-]+)', playlist_url)
-            playlist_id = match.group(1) if match else 'Unknown'
+
+            # Extract the playlist ID from the URL by splitting at '='
+            playlist_id = playlist_url.split('=')[1]  # The ID is everything after the '='
 
             # Extracting the video count if available
             video_count = item.get('videoCount', 'Unknown')  # Default to 'Unknown' if not provided
@@ -148,6 +147,7 @@ def playlist_search():
     except Exception as e:
         print(f"Error during playlist search: {e}")
         return jsonify({'error': 'An error occurred during the playlist search'}), 500
+
 
 @app.route('/watch')
 def watch():
