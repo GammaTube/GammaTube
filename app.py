@@ -134,6 +134,7 @@ def playlist_search():
 
             playlists.append({
                 'title': title,
+                'playlistId': playlist_id,  # Including the playlist ID
                 'url': playlist_url,
                 'thumbnail': thumbnail,
                 'videoCount': video_count  # Adding the video count to the response
