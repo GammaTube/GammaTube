@@ -197,5 +197,17 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/playlist')  # New route for playlist
+def playlist():
+    playlist_id = request.args.get('id')
+    print(f"Playlist route accessed with playlist_id: {playlist_id}")
+    if not playlist_id:
+        return "No playlist ID provided", 400
+
+    # Here you would typically fetch the playlist details using the playlist_id
+    # For now, we'll just render a template and pass the playlist ID
+    return render_template('playlist.html', playlist_id=playlist_id)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
