@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
 import os
+import re
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'  # Required for session management and flashing messages
@@ -124,17 +125,21 @@ def playlist_search():
 
         playlists = []
         for item in results['result']:
-            title = item['title']
-            playlist_id = item['id']
+            title = item.get('title', 'No title')
+            thumbnail = item['thumbnails'][0]['url'] if item.get('thumbnails') else 'https://via.placeholder.com/120x90'
+            
+            # Extracting the playlist/video ID from the thumbnail URL using a regex pattern
+            match = re.search(r'/vi/([a-zA-Z0-9_-]+)/', thumbnail)
+            playlist_id = match.group(1) if match else 'Unknown'
+
             playlist_url = 'https://www.youtube.com/playlist?list=' + playlist_id
-            thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
             
             # Extracting the video count if available
             video_count = item.get('videoCount', 'Unknown')  # Default to 'Unknown' if not provided
 
             playlists.append({
                 'title': title,
-                'playlistId': playlist_id,  # Including the playlist ID
+                'playlistId': playlist_id,  # Using the parsed ID
                 'url': playlist_url,
                 'thumbnail': thumbnail,
                 'videoCount': video_count  # Adding the video count to the response
