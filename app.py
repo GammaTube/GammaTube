@@ -145,39 +145,43 @@ def playlist_search():
 def channel_page(channel_name):
     print(f"Channel page accessed for channel: {channel_name}")
     try:
-        # Construct the YouTube channel URL based on the channel name
-        channel_url = f'https://www.youtube.com/c/{channel_name}'  # This assumes the channel has a custom URL based on name
+        # Get the channel URL dynamically
+        channel_search = ChannelsSearch(channel_name, limit=1)
+        search_results = channel_search.result()
 
-        # Fetch the HTML content of the channel page
-        response = requests.get(channel_url)
-        
-        # If request is unsuccessful, return an error
-        if response.status_code != 200:
-            print(f"Failed to fetch channel page: Status code {response.status_code}")
-            return render_template('channels.html', error='Failed to access the channel page')
+        if search_results['result']:
+            channel_info = search_results['result'][0]
+            channel_id = channel_info['id']
+            channel_title = channel_info['title']
+            channel_url = f"https://www.youtube.com/channel/{channel_id}"
+            thumbnail = channel_info['thumbnails'][0]['url'] if channel_info.get('thumbnails') else 'https://via.placeholder.com/120x90'
+            subscribers = channel_info.get('subscribers', 'N/A')
 
-        # Parse the HTML using BeautifulSoup
-        soup = BeautifulSoup(response.content, 'html.parser')
+            # Fetch the channel's homepage HTML to extract the description
+            response = requests.get(channel_url)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                # This example assumes the description can be found in a specific tag/class
+                description = soup.find('meta', {'name': 'description'})['content']
 
-        # Attempt to extract the channel title, thumbnail, and subscriber count
-        channel_title = soup.find('meta', {'property': 'og:title'})['content'] if soup.find('meta', {'property': 'og:title'}) else 'Unknown Channel'
-        thumbnail = soup.find('meta', {'property': 'og:image'})['content'] if soup.find('meta', {'property': 'og:image'}) else 'https://via.placeholder.com/120x90'
-        
-        # The subscriber count may not be directly available in meta tags; it might require more parsing
-        # This is a basic example and might not always work due to YouTube’s dynamic HTML structure
-        subscriber_tag = soup.find('span', {'class': 'yt-subscription-button-subscriber-count-branded-horizontal'})
-        subscribers = subscriber_tag.text if subscriber_tag else 'N/A'
+                # Build a link for subscribing with a confirmation URL
+                subscribe_url = f"https://www.youtube.com/@{channel_name}?sub_confirmation=1"
+                
+                # Link to view the channel's videos via the provided service
+                channel_videos_url = f"https://gammatube.koyeb.app/watch?v={channel_id}"
 
-        # For description, we might not have it directly available, so using a placeholder
-        description = 'Description not available via scraping.'
-
-        # Render the channel page with the fetched details
-        return render_template('channels.html', 
-                               channel_name=channel_title, 
-                               channel_url=channel_url, 
-                               thumbnail=thumbnail, 
-                               subscribers=subscribers,
-                               description=description)
+                return render_template('channels.html', 
+                                       channel_name=channel_title,
+                                       channel_url=channel_url, 
+                                       thumbnail=thumbnail, 
+                                       subscribers=subscribers,
+                                       description=description,
+                                       subscribe_url=subscribe_url,
+                                       videos_url=channel_videos_url)
+            else:
+                return render_template('channels.html', error='Failed to retrieve channel details')
+        else:
+            return render_template('channels.html', error='Channel not found')
 
     except Exception as e:
         print(f"Error fetching channel page: {e}")
