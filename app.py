@@ -128,8 +128,16 @@ def playlist_search():
             playlist_id = item['id']
             playlist_url = 'https://www.youtube.com/playlist?list=' + playlist_id
             thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
+            
+            # Extracting the video count if available
+            video_count = item.get('videoCount', 'Unknown')  # Default to 'Unknown' if not provided
 
-            playlists.append({'title': title, 'url': playlist_url, 'thumbnail': thumbnail})
+            playlists.append({
+                'title': title,
+                'url': playlist_url,
+                'thumbnail': thumbnail,
+                'videoCount': video_count  # Adding the video count to the response
+            })
 
         return jsonify(playlists)
     except Exception as e:
