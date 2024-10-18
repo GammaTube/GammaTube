@@ -154,7 +154,9 @@ def channel_page(channel_name):
             channel_title = channel_info['title']
             channel_url = f"https://www.youtube.com/channel/{channel_id}"
             thumbnail = channel_info['thumbnails'][0]['url'] if channel_info.get('thumbnails') else 'https://via.placeholder.com/120x90'
-            subscribers = channel_info.get('subscribers', 'N/A')
+            
+            # Fix for subscriber count
+            subscribers = channel_info.get('subscribers', {}).get('simpleText', 'N/A')
 
             # Fetch the channel's homepage HTML to extract full description
             response = requests.get(channel_url)
@@ -163,10 +165,13 @@ def channel_page(channel_name):
                 
                 # Extract the full description (assuming it's inside a specific tag like <meta> or <p>)
                 description_meta = soup.find('meta', {'name': 'description'})
-                description = description_meta['content'] if description_meta else 'No description available'
+                full_description = description_meta['content'] if description_meta else 'No description available'
+                
+                # Show a shortened version of the description
+                short_description = full_description[:150] + '...' if len(full_description) > 150 else full_description
 
                 # Fetch videos using the VideosSearch from youtubesearchpython
-                videos_search = VideosSearch(channel_name, limit=6)
+                videos_search = VideosSearch(channel_name, limit=5)
                 videos_results = videos_search.result()
 
                 videos = []
@@ -181,15 +186,15 @@ def channel_page(channel_name):
                         'url': f"https://gammatube.koyeb.app/watch?v={video_id}"
                     })
 
-                # Build a link for subscribing with a confirmation URL
                 subscribe_url = f"https://www.youtube.com/@{channel_name}?sub_confirmation=1"
-                
+
                 return render_template('channels.html', 
                                        channel_name=channel_title,
                                        channel_url=channel_url, 
                                        thumbnail=thumbnail, 
                                        subscribers=subscribers,
-                                       description=description,
+                                       short_description=short_description,
+                                       full_description=full_description,
                                        subscribe_url=subscribe_url,
                                        videos=videos)
             else:
@@ -200,6 +205,7 @@ def channel_page(channel_name):
     except Exception as e:
         print(f"Error fetching channel page: {e}")
         return render_template('channels.html', error='An error occurred while fetching the channel')
+
 
 @app.route('/watch')
 def watch():
