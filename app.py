@@ -1,5 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+import requests
+from bs4 import BeautifulSoup
 from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
 import os
 import re
