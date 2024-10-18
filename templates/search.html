@@ -8,7 +8,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="https://titanicsearch.neocities.org/favicon.png">
     
     <style>
-        /* Styles remain the same */
         :root {
             --background-light: #f9f9f9;
             --background-dark: #121212;
@@ -121,6 +120,16 @@
             font-size: 24px;
             font-weight: bold;
             pointer-events: none;
+        }
+
+        .playlist-card .playlist-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 4px;
         }
 
         .playlist-icon {
@@ -288,6 +297,7 @@
                                 <div class="playlist-overlay">
                                     <div class="playlist-icon"></div>
                                 </div>
+                                <div class="playlist-info">${playlist.videoCount} videos</div>
                                 <h3>${playlist.title}</h3>
                             </a>
                         </div>
