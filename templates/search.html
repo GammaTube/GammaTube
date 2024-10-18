@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="https://titanicsearch.neocities.org/favicon.png">
     
     <style>
+        /* Styles remain the same */
         :root {
             --background-light: #f9f9f9;
             --background-dark: #121212;
@@ -71,37 +72,62 @@
             justify-content: center;
         }
 
-        .video-card {
+        .video-card, .playlist-card {
             flex: 1 1 calc(33% - 20px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
             background: var(--card-bg-light);
             transition: background-color 0.3s;
+            position: relative;
         }
 
-        .video-card.dark-mode {
+        .video-card.dark-mode, .playlist-card.dark-mode {
             background: var(--card-bg-dark);
         }
 
-        .video-card img {
+        .video-card img, .playlist-card img {
             width: 100%;
             height: auto;
         }
 
-        .video-card a {
+        .video-card a, .playlist-card a {
             text-decoration: none;
             color: inherit;
         }
 
-        .video-card h3 {
+        .video-card h3, .playlist-card h3 {
             margin: 10px;
             font-size: 16px;
             color: var(--text-light);
         }
 
-        .video-card.dark-mode h3 {
+        .video-card.dark-mode h3, .playlist-card.dark-mode h3 {
             color: var(--text-dark);
+        }
+
+        /* Playlist specific styling */
+        .playlist-card .playlist-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        .playlist-icon {
+            width: 24px;
+            height: 24px;
+            background: url('https://cdn-icons-png.flaticon.com/512/4043/4043797.png') no-repeat center center;
+            background-size: contain;
         }
 
         #menu-button {
@@ -174,12 +200,12 @@
     </div>
 
     <div id="search-container">
-        <input type="text" id="search-bar" placeholder="Search for videos...">
+        <input type="text" id="search-bar" placeholder="Search for videos or playlists...">
         <button id="search-button">Search</button>
     </div>
 
     <div id="video-container">
-        <!-- Video items will be dynamically inserted here -->
+        <!-- Video and playlist items will be dynamically inserted here -->
     </div>
 
     <script>
@@ -194,7 +220,7 @@
             const query = new URLSearchParams(window.location.search).get('query');
             if (query) {
                 searchBar.value = query;
-                searchVideos(query);
+                searchContent(query);
             }
 
             menuButton.addEventListener('click', () => {
@@ -204,14 +230,14 @@
             toggleDarkModeButton.addEventListener('click', () => {
                 document.body.classList.toggle('dark-mode');
                 menu.classList.toggle('dark-mode');
-                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.video-card, .playlist-card').forEach(card => card.classList.toggle('dark-mode'));
             });
 
             searchButton.addEventListener('click', () => {
                 const query = searchBar.value.trim();
                 if (query) {
                     updateURL(query);
-                    searchVideos(query);
+                    searchContent(query);
                 }
             });
 
@@ -220,7 +246,7 @@
                     const query = searchBar.value.trim();
                     if (query) {
                         updateURL(query);
-                        searchVideos(query);
+                        searchContent(query);
                     }
                 }
             });
@@ -231,36 +257,50 @@
                 window.history.pushState({}, '', newURL);
             }
 
-            function searchVideos(query) {
-                fetch(`/api/search?query=${encodeURIComponent(query)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Search results:', data); // Debugging line
-                        if (Array.isArray(data)) {
-                            videoContainer.innerHTML = data.map(video => `
-                                <div class="video-card">
-                                    <a href="/watch?v=${new URL(video.src).searchParams.get('v')}">
-                                        <img src="${video.thumbnail}" alt="${video.title}">
-                                        <h3>${video.title}</h3>
-                                    </a>
+            function searchContent(query) {
+                Promise.all([
+                    fetch(`/api/search?query=${encodeURIComponent(query)}`),
+                    fetch(`https://gammatube.koyeb.app/api/playlist_search?query=${encodeURIComponent(query)}`)
+                ])
+                .then(responses => Promise.all(responses.map(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })))
+                .then(([videos, playlists]) => {
+                    console.log('Search results:', { videos, playlists }); // Debugging line
+                    videoContainer.innerHTML = '';
+
+                    const videoElements = videos.map(video => `
+                        <div class="video-card">
+                            <a href="/watch?v=${new URL(video.src).searchParams.get('v')}">
+                                <img src="${video.thumbnail}" alt="${video.title}">
+                                <h3>${video.title}</h3>
+                            </a>
+                        </div>
+                    `).join('');
+
+                    const playlistElements = playlists.map(playlist => `
+                        <div class="playlist-card">
+                            <a href="/playlist?id=${playlist.id}">
+                                <img src="${playlist.thumbnail}" alt="${playlist.title}">
+                                <div class="playlist-overlay">
+                                    <div class="playlist-icon"></div>
                                 </div>
-                            `).join('');
-                        } else {
-                            videoContainer.innerHTML = '<p>No videos found.</p>';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching search results:', error);
-                        videoContainer.innerHTML = '<p>Failed to load videos. Please try again later.</p>';
-                    });
+                                <h3>${playlist.title}</h3>
+                            </a>
+                        </div>
+                    `).join('');
+
+                    videoContainer.innerHTML = videoElements + playlistElements;
+                })
+                .catch(error => {
+                    console.error('Error fetching search results:', error);
+                    videoContainer.innerHTML = '<p>Failed to load content. Please try again later.</p>';
+                });
             }
         });
     </script>
-    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
 </body>
 </html>
