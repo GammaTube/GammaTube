@@ -6,7 +6,7 @@
     <title>{{ channel_name }} - YouTube Channel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Reset some default browser styles */
+        /* Reset and base styles */
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +20,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             padding: 20px;
         }
 
@@ -28,7 +28,7 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 30px;
-            max-width: 900px;
+            max-width: 1000px;
             width: 100%;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             transition: all 0.3s;
@@ -147,8 +147,11 @@
                 <a href="{{ channel_url }}" target="_blank" class="btn btn-watch">
                     <i class="fab fa-youtube"></i> Visit Channel
                 </a>
-                <a href="#" class="btn btn-subscribe">
+                <a href="{{ subscribe_url }}" target="_blank" class="btn btn-subscribe">
                     <i class="fas fa-bell"></i> Subscribe
+                </a>
+                <a href="{{ videos_url }}" target="_blank" class="btn btn-watch">
+                    <i class="fas fa-video"></i> Watch Videos
                 </a>
             </div>
         {% endif %}
