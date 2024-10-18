@@ -31,11 +31,6 @@
             max-width: 1000px;
             width: 100%;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s;
-        }
-
-        .container:hover {
-            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
         }
 
         .header {
@@ -106,19 +101,41 @@
             background-color: #596e88;
         }
 
+        .video-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .video-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            width: calc(50% - 20px);
+            transition: transform 0.2s;
+        }
+
+        .video-item:hover {
+            transform: scale(1.05);
+        }
+
+        .video-item img {
+            width: 100%;
+            height: auto;
+        }
+
+        .video-title {
+            padding: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            color: #fff;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-
-            .header img {
-                width: 60px;
-                height: 60px;
-            }
-
-            .channel-info h1 {
-                font-size: 1.4rem;
+            .video-item {
+                width: 100%;
             }
         }
     </style>
@@ -150,9 +167,17 @@
                 <a href="{{ subscribe_url }}" target="_blank" class="btn btn-subscribe">
                     <i class="fas fa-bell"></i> Subscribe
                 </a>
-                <a href="{{ videos_url }}" target="_blank" class="btn btn-watch">
-                    <i class="fas fa-video"></i> Watch Videos
-                </a>
+            </div>
+
+            <div class="video-list">
+                {% for video in videos %}
+                <div class="video-item">
+                    <a href="{{ video.url }}" target="_blank">
+                        <img src="{{ video.thumbnail }}" alt="{{ video.title }} Thumbnail">
+                        <div class="video-title">{{ video.title }}</div>
+                    </a>
+                </div>
+                {% endfor %}
             </div>
         {% endif %}
     </div>
