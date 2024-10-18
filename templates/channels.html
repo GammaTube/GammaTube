@@ -66,6 +66,12 @@
             line-height: 1.6;
         }
 
+        .read-more {
+            color: #f05454;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         .buttons {
             display: flex;
             gap: 15px;
@@ -132,6 +138,35 @@
             color: #fff;
         }
 
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .modal-close {
+            margin-top: 20px;
+            cursor: pointer;
+            color: #f05454;
+            font-weight: bold;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .video-item {
@@ -157,7 +192,11 @@
 
             <div class="content">
                 <h3>About the Channel:</h3>
-                <p>{{ description }}</p>
+                <p>{{ short_description }} 
+                    {% if full_description|length > 150 %}
+                        <span class="read-more" onclick="showModal()">Read More</span>
+                    {% endif %}
+                </p>
             </div>
 
             <div class="buttons">
@@ -181,5 +220,32 @@
             </div>
         {% endif %}
     </div>
+
+    <!-- Modal -->
+    <div class="modal" id="descriptionModal">
+        <div class="modal-content">
+            <h2>Full Description</h2>
+            <p>{{ full_description }}</p>
+            <span class="modal-close" onclick="closeModal()">Close</span>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            document.getElementById('descriptionModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('descriptionModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            var modal = document.getElementById('descriptionModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
