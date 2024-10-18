@@ -145,7 +145,6 @@ def playlist_search():
 def channel_page(channel_name):
     print(f"Channel page accessed for channel: {channel_name}")
     try:
-        # Get the channel URL dynamically
         channel_search = ChannelsSearch(channel_name, limit=1)
         search_results = channel_search.result()
 
@@ -157,19 +156,34 @@ def channel_page(channel_name):
             thumbnail = channel_info['thumbnails'][0]['url'] if channel_info.get('thumbnails') else 'https://via.placeholder.com/120x90'
             subscribers = channel_info.get('subscribers', 'N/A')
 
-            # Fetch the channel's homepage HTML to extract the description
+            # Fetch the channel's homepage HTML to extract full description
             response = requests.get(channel_url)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
-                # This example assumes the description can be found in a specific tag/class
-                description = soup.find('meta', {'name': 'description'})['content']
+                
+                # Extract the full description (assuming it's inside a specific tag like <meta> or <p>)
+                description_meta = soup.find('meta', {'name': 'description'})
+                description = description_meta['content'] if description_meta else 'No description available'
+
+                # Fetch videos using the VideosSearch from youtubesearchpython
+                videos_search = VideosSearch(channel_name, limit=5)
+                videos_results = videos_search.result()
+
+                videos = []
+                for video in videos_results['result']:
+                    video_id = video['id']
+                    video_title = video['title']
+                    video_thumbnail = video['thumbnails'][0]['url'] if video.get('thumbnails') else 'https://via.placeholder.com/120x90'
+
+                    videos.append({
+                        'title': video_title,
+                        'thumbnail': video_thumbnail,
+                        'url': f"https://gammatube.koyeb.app/watch?v={video_id}"
+                    })
 
                 # Build a link for subscribing with a confirmation URL
                 subscribe_url = f"https://www.youtube.com/@{channel_name}?sub_confirmation=1"
                 
-                # Link to view the channel's videos via the provided service
-                channel_videos_url = f"https://gammatube.koyeb.app/watch?v={channel_id}"
-
                 return render_template('channels.html', 
                                        channel_name=channel_title,
                                        channel_url=channel_url, 
@@ -177,7 +191,7 @@ def channel_page(channel_name):
                                        subscribers=subscribers,
                                        description=description,
                                        subscribe_url=subscribe_url,
-                                       videos_url=channel_videos_url)
+                                       videos=videos)
             else:
                 return render_template('channels.html', error='Failed to retrieve channel details')
         else:
