@@ -166,7 +166,7 @@ def channel_page(channel_name):
                 description = description_meta['content'] if description_meta else 'No description available'
 
                 # Fetch videos using the VideosSearch from youtubesearchpython
-                videos_search = VideosSearch(channel_name, limit=5)
+                videos_search = VideosSearch(channel_name, limit=6)
                 videos_results = videos_search.result()
 
                 videos = []
