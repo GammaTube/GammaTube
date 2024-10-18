@@ -133,10 +133,10 @@
         }
 
         .playlist-icon {
-            width: 32px;
-            height: 32px;
-            background: url('') no-repeat center center;
-            background-size: 48px 48px; /* Make the image bigger */
+            width: 48px; /* Make the icon bigger */
+            height: 48px;
+            background: url('https://cdn-icons-png.flaticon.com/512/4043/4043797.png') no-repeat center center;
+            background-size: cover; /* Cover the entire area */
         }
 
         #menu-button {
@@ -278,7 +278,7 @@
                     return response.json();
                 })))
                 .then(([videos, playlists]) => {
-                    console.log('Search results:', { videos, playlists }); // Debugging line
+                    console.log('Search results:', { videos, playlists });
                     videoContainer.innerHTML = '';
 
                     const videoElements = videos.map(video => `
@@ -292,7 +292,7 @@
 
                     const playlistElements = playlists.map(playlist => `
                         <div class="playlist-card">
-                            <a href="/playlist?id=${playlist.id}">
+                            <a href="/playlist?id=${playlist.playlistId}">
                                 <img src="${playlist.thumbnail}" alt="${playlist.title}">
                                 <div class="playlist-overlay">
                                     <div class="playlist-icon"></div>
