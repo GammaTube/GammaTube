@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from youtubesearchpython import VideosSearch
+from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
 import os
 
 app = Flask(__name__)
@@ -81,6 +81,60 @@ def search():
     except Exception as e:
         print(f"Error during search: {e}")
         return jsonify({'error': 'An error occurred during the search'}), 500
+
+
+# New API route for channel search
+@app.route('/api/channel_search')
+def channel_search():
+    query = request.args.get('query', '')
+    print(f"Channel search accessed with query: {query}")
+    if not query:
+        return jsonify({'error': 'No query provided'}), 400
+
+    try:
+        channel_search = ChannelsSearch(query, limit=10, region='US')
+        results = channel_search.result()
+
+        channels = []
+        for item in results['result']:
+            title = item['title']
+            channel_id = item['id']
+            channel_url = 'https://www.youtube.com/channel/' + channel_id
+            thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
+
+            channels.append({'title': title, 'url': channel_url, 'thumbnail': thumbnail})
+
+        return jsonify(channels)
+    except Exception as e:
+        print(f"Error during channel search: {e}")
+        return jsonify({'error': 'An error occurred during the channel search'}), 500
+
+
+# New API route for playlist search
+@app.route('/api/playlist_search')
+def playlist_search():
+    query = request.args.get('query', '')
+    print(f"Playlist search accessed with query: {query}")
+    if not query:
+        return jsonify({'error': 'No query provided'}), 400
+
+    try:
+        playlist_search = PlaylistsSearch(query, limit=10)
+        results = playlist_search.result()
+
+        playlists = []
+        for item in results['result']:
+            title = item['title']
+            playlist_id = item['id']
+            playlist_url = 'https://www.youtube.com/playlist?list=' + playlist_id
+            thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
+
+            playlists.append({'title': title, 'url': playlist_url, 'thumbnail': thumbnail})
+
+        return jsonify(playlists)
+    except Exception as e:
+        print(f"Error during playlist search: {e}")
+        return jsonify({'error': 'An error occurred during the playlist search'}), 500
 
 
 @app.route('/watch')
