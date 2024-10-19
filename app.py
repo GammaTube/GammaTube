@@ -78,6 +78,11 @@ def index():
 
 @app.route('/search')
 def search_page():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+        
     query = request.args.get('query', '')
     print(f"Search page accessed with query: {query}")
     if query:
@@ -103,6 +108,11 @@ def search_page():
 
 @app.route('/api/search')
 def api_search():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     query = request.args.get('query', '')
     print(f"API search accessed with query: {query}")
     if not query:
@@ -128,6 +138,11 @@ def api_search():
 
 @app.route('/api/channel_search')
 def channel_search():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     query = request.args.get('query', '')
     print(f"Channel search accessed with query: {query}")
     if not query:
@@ -154,6 +169,11 @@ def channel_search():
 
 @app.route('/api/playlist_search')
 def playlist_search():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     query = request.args.get('query', '')
     print(f"Playlist search accessed with query: {query}")
     if not query:
@@ -187,13 +207,18 @@ def playlist_search():
 
 @app.route('/watch')
 def watch():
+     # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     video_id = request.args.get('v')
     print(f"Watch route accessed with video_id: {video_id}")
     return render_template('watch.html', video_id=video_id)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
-def signup():
+def signup():    
     if request.method == 'POST':
         data = request.get_json()
         
@@ -247,6 +272,11 @@ def login():
 
 @app.route('/playlist')
 def playlist():
+     # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     playlist_id = request.args.get('id')
     print(f"Playlist route accessed with playlist_id: {playlist_id}")
     if not playlist_id:
