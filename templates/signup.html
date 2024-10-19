@@ -35,6 +35,7 @@
             padding: 20px;
             width: 300px;
             text-align: center;
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         .signup-container.dark-mode {
@@ -52,6 +53,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
+            box-sizing: border-box;
         }
 
         button {
@@ -64,10 +66,31 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s;
         }
 
         button:hover {
             background: var(--primary-dark);
+        }
+
+        p {
+            margin-top: 15px;
+        }
+
+        p a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error message styles */
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
         }
 
         /* CSS variables for light and dark mode */
@@ -81,13 +104,6 @@
             --primary-light: #007bff;
             --primary-dark: #0056b3;
         }
-
-        .dark-mode {
-            --bg-light: #121212;
-            --text-light: #ffffff;
-            --card-bg-light: #333333;
-            --primary-light: #1e90ff;
-        }
     </style>
 </head>
 <body>
@@ -99,16 +115,20 @@
         <input type="password" id="confirm-password" placeholder="Confirm Password" required>
         <button id="signup-button">Sign Up</button>
         <p>Already have an account? <a href="login">Log in</a></p>
+        <p class="error" id="error-message"></p>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const signupButton = document.getElementById('signup-button');
+            const errorMessage = document.getElementById('error-message');
 
             signupButton.addEventListener('click', () => {
-                // Implement signup functionality here
-                const username = document.getElementById('username').value;
-                const email = document.getElementById('email').value;
+                // Clear previous error message
+                errorMessage.textContent = '';
+
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirm-password').value;
 
@@ -116,12 +136,30 @@
                     if (password === confirmPassword) {
                         // For demonstration purposes, we'll just log to console
                         console.log(`Username: ${username}, Email: ${email}, Password: ${password}`);
-                        // Add your signup logic here
+                        // Add your signup logic here (e.g., make an API request)
                     } else {
-                        alert('Passwords do not match');
+                        errorMessage.textContent = 'Passwords do not match';
                     }
                 } else {
-                    alert('Please fill in all fields');
+                    errorMessage.textContent = 'Please fill in all fields';
+                }
+            });
+
+            // Optional: Automatic dark mode based on system settings
+            const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+            if (prefersDarkScheme.matches) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.signup-container').classList.add('dark-mode');
+            }
+
+            // Listen for system changes to light/dark mode
+            prefersDarkScheme.addEventListener('change', (event) => {
+                if (event.matches) {
+                    document.body.classList.add('dark-mode');
+                    document.querySelector('.signup-container').classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.querySelector('.signup-container').classList.remove('dark-mode');
                 }
             });
         });
