@@ -189,7 +189,6 @@ def watch():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        # Expecting JSON data in the request
         data = request.get_json()
         
         username = data.get('username')
@@ -199,20 +198,16 @@ def signup():
         if not username or not password or not email_address:
             return jsonify(success=False, message='Username, password, and email are required!'), 400
 
-        # Check if the username already exists
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             return jsonify(success=False, message='Username already exists!'), 400
 
-        # Hash the password before storing it
-        hashed_password = generate_password_hash(password)  # Default method is fine
-
-        # Create a new user and add it to the database
+        hashed_password = generate_password_hash(password)
         new_user = User(username=username, password_hash=hashed_password, email=email_address)
+
         db.session.add(new_user)
         db.session.commit()
 
-        # Send an email notification
         try:
             send_signup_email(email_address, username)
         except Exception as e:
