@@ -81,41 +81,33 @@
             --primary-light: #007bff;
             --primary-dark: #0056b3;
         }
-
-        .dark-mode {
-            --bg-light: #121212;
-            --text-light: #ffffff;
-            --card-bg-light: #333333;
-            --primary-light: #1e90ff;
-        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h2>Login to GammaTube</h2>
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button id="login-button">Login</button>
-        <p><a href="#">Forgot Password?</a></p>
+        <form method="POST" action="/login" id="login-form">  <!-- Ensure form submits to the right route -->
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p><a href="#">Forgot Password?</a></p>
+        </form>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginButton = document.getElementById('login-button');
+        // Handle form submission
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            const username = document.querySelector('input[name="username"]').value;
+            const password = document.querySelector('input[name="password"]').value;
 
-            loginButton.addEventListener('click', () => {
-                // Implement login functionality here
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-
-                if (username && password) {
-                    // For demonstration purposes, we'll just log to console
-                    console.log(`Username: ${username}, Password: ${password}`);
-                    // Add your login logic here
-                } else {
-                    alert('Please fill in both fields');
-                }
-            });
+            // Basic client-side validation
+            if (!username || !password) {
+                alert('Please fill in both fields.');
+                event.preventDefault();  // Prevent form submission
+            } else {
+                // Successful submission feedback
+                alert('Logging you in...');
+            }
         });
     </script>
 </body>
