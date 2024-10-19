@@ -1,7 +1,5 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-import requests
-from bs4 import BeautifulSoup
 from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
 import os
 import re
@@ -15,6 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+
 # Database model for the user accounts
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,9 +23,11 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+
 # Initialize the database (create tables)
 with app.app_context():
     db.create_all()
+
 
 @app.route('/')
 def index():
@@ -57,6 +58,7 @@ def search_page():
     else:
         return render_template('search.html', error='No query provided')
 
+
 @app.route('/api/search')
 def search():
     query = request.args.get('query', '')
@@ -80,6 +82,7 @@ def search():
     except Exception as e:
         print(f"Error during search: {e}")
         return jsonify({'error': 'An error occurred during the search'}), 500
+
 
 # New API route for channel search
 @app.route('/api/channel_search')
@@ -107,6 +110,7 @@ def channel_search():
         print(f"Error during channel search: {e}")
         return jsonify({'error': 'An error occurred during the channel search'}), 500
 
+
 # New API route for playlist search
 @app.route('/api/playlist_search')
 def playlist_search():
@@ -125,72 +129,24 @@ def playlist_search():
             thumbnail = item['thumbnails'][0]['url'] if item.get('thumbnails') else 'https://via.placeholder.com/120x90'
             playlist_url = 'https://www.youtube.com/playlist?list=' + item['id']
 
-            playlist_id = playlist_url.split('=')[1]
-            video_count = item.get('videoCount', 'Unknown')
+            # Extract the playlist ID from the URL by splitting at '='
+            playlist_id = playlist_url.split('=')[1]  # The ID is everything after the '='
+
+            # Extracting the video count if available
+            video_count = item.get('videoCount', 'Unknown')  # Default to 'Unknown' if not provided
 
             playlists.append({
                 'title': title,
-                'playlistId': playlist_id,
+                'playlistId': playlist_id,  # Using the parsed ID
                 'url': playlist_url,
                 'thumbnail': thumbnail,
-                'videoCount': video_count
+                'videoCount': video_count  # Adding the video count to the response
             })
 
         return jsonify(playlists)
     except Exception as e:
         print(f"Error during playlist search: {e}")
         return jsonify({'error': 'An error occurred during the playlist search'}), 500
-
-@app.route('/channel/<channel_name>')
-def channel_page(channel_name):
-    print(f"Channel page accessed for channel: {channel_name}")
-    try:
-        # Perform the channel search
-        search = ChannelsSearch(channel_name, limit=1)
-        results = search.result()
-
-        # Check if results are structured as expected
-        if 'result' in results and results['result']:
-            channel_info = results['result'][0]
-            channel_title = channel_info.get('title', 'Unknown Channel')
-            channel_id = channel_info.get('id')
-            channel_url = f'https://www.youtube.com/channel/{channel_id}' if channel_id else '#'
-            thumbnail = channel_info.get('thumbnails', [{'url': 'https://via.placeholder.com/120x90'}])[0]['url']
-            subscribers = channel_info.get('subscribersText', 'N/A')
-            full_description = channel_info.get('descriptionSnippet', 'No description available')
-            
-            # For readability, truncate the description
-            short_description = full_description[:150] + '...' if len(full_description) > 150 else full_description
-
-            # Fetch 5 recent videos (if available)
-            video_search = VideoSearch(channel_id, limit=5)
-            video_results = video_search.result().get('result', [])
-            videos = [
-                {
-                    'title': video.get('title', 'Untitled'),
-                    'url': f"https://gammatube.koyeb.app/watch?v={video.get('id', '')}",
-                    'thumbnail': video.get('thumbnails', [{'url': 'https://via.placeholder.com/120x90'}])[0]['url']
-                }
-                for video in video_results
-            ]
-
-            subscribe_url = f'https://www.youtube.com/{channel_id}/?sub_confirmation=1' if channel_id else '#'
-
-            return render_template('channels.html', 
-                                   channel_name=channel_title, 
-                                   channel_url=channel_url, 
-                                   thumbnail=thumbnail, 
-                                   subscribers=subscribers,
-                                   short_description=short_description,
-                                   full_description=full_description,
-                                   subscribe_url=subscribe_url,
-                                   videos=videos)
-        else:
-            return render_template('channels.html', error='Channel not found')
-
-    except Exception as e:
-        print(f"Error fetching channel page: {e}")
-        return render_template('channels.html', error='An error occurred while fetching the channel')
 
 
 @app.route('/watch')
@@ -199,17 +155,20 @@ def watch():
     print(f"Watch route accessed with video_id: {video_id}")
     return render_template('watch.html', video_id=video_id)
 
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
+        # Check if the username already exists
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash('Username already exists!', 'error')
             return redirect(url_for('signup'))
 
+        # Create a new user and add it to the database
         new_user = User(username=username, password=password)
         db.session.add(new_user)
         db.session.commit()
@@ -219,30 +178,36 @@ def signup():
 
     return render_template('signup.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
+        # Retrieve the user from the database
         user = User.query.filter_by(username=username, password=password).first()
         if user:
             flash('Login successful!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
         else:
             flash('Invalid username or password!', 'error')
             return redirect(url_for('login'))
 
     return render_template('login.html')
 
-@app.route('/playlist')
+
+@app.route('/playlist')  # New route for playlist
 def playlist():
     playlist_id = request.args.get('id')
     print(f"Playlist route accessed with playlist_id: {playlist_id}")
     if not playlist_id:
         return "No playlist ID provided", 400
 
+    # Here you would typically fetch the playlist details using the playlist_id
+    # For now, we'll just render a template and pass the playlist ID
     return render_template('playlist.html', playlist_id=playlist_id)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
