@@ -18,6 +18,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
+# Create the SQLite database and initialize it if necessary
+RUN sqlite3 accounts.db "VACUUM;"  # This creates an empty database
+
 # Expose the port that the Flask app runs on
 EXPOSE 5000
 
