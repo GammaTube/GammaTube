@@ -145,60 +145,46 @@ def playlist_search():
 def channel_page(channel_name):
     print(f"Channel page accessed for channel: {channel_name}")
     try:
-        channel_search = ChannelsSearch(channel_name, limit=1)
-        search_results = channel_search.result()
+        # Perform the channel search
+        search = ChannelsSearch(channel_name, limit=1)
+        results = search.result()
 
-        if search_results['result']:
-            channel_info = search_results['result'][0]
-            channel_id = channel_info['id']
-            channel_title = channel_info['title']
-            channel_url = f"https://www.youtube.com/channel/{channel_id}"
-            thumbnail = channel_info['thumbnails'][0]['url'] if channel_info.get('thumbnails') else 'https://via.placeholder.com/120x90'
+        # Check if results are structured as expected
+        if 'result' in results and results['result']:
+            channel_info = results['result'][0]
+            channel_title = channel_info.get('title', 'Unknown Channel')
+            channel_id = channel_info.get('id')
+            channel_url = f'https://www.youtube.com/channel/{channel_id}' if channel_id else '#'
+            thumbnail = channel_info.get('thumbnails', [{'url': 'https://via.placeholder.com/120x90'}])[0]['url']
+            subscribers = channel_info.get('subscribersText', 'N/A')
+            full_description = channel_info.get('descriptionSnippet', 'No description available')
             
-            # Fix for subscriber count
-            subscribers = channel_info.get('subscribers', {}).get('simpleText', 'N/A')
+            # For readability, truncate the description
+            short_description = full_description[:150] + '...' if len(full_description) > 150 else full_description
 
-            # Fetch the channel's homepage HTML to extract full description
-            response = requests.get(channel_url)
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Extract the full description (assuming it's inside a specific tag like <meta> or <p>)
-                description_meta = soup.find('meta', {'name': 'description'})
-                full_description = description_meta['content'] if description_meta else 'No description available'
-                
-                # Show a shortened version of the description
-                short_description = full_description[:150] + '...' if len(full_description) > 150 else full_description
+            # Fetch 5 recent videos (if available)
+            video_search = VideoSearch(channel_id, limit=5)
+            video_results = video_search.result().get('result', [])
+            videos = [
+                {
+                    'title': video.get('title', 'Untitled'),
+                    'url': f"https://gammatube.koyeb.app/watch?v={video.get('id', '')}",
+                    'thumbnail': video.get('thumbnails', [{'url': 'https://via.placeholder.com/120x90'}])[0]['url']
+                }
+                for video in video_results
+            ]
 
-                # Fetch videos using the VideosSearch from youtubesearchpython
-                videos_search = VideosSearch(channel_name, limit=5)
-                videos_results = videos_search.result()
+            subscribe_url = f'https://www.youtube.com/{channel_id}/?sub_confirmation=1' if channel_id else '#'
 
-                videos = []
-                for video in videos_results['result']:
-                    video_id = video['id']
-                    video_title = video['title']
-                    video_thumbnail = video['thumbnails'][0]['url'] if video.get('thumbnails') else 'https://via.placeholder.com/120x90'
-
-                    videos.append({
-                        'title': video_title,
-                        'thumbnail': video_thumbnail,
-                        'url': f"https://gammatube.koyeb.app/watch?v={video_id}"
-                    })
-
-                subscribe_url = f"https://www.youtube.com/@{channel_name}?sub_confirmation=1"
-
-                return render_template('channels.html', 
-                                       channel_name=channel_title,
-                                       channel_url=channel_url, 
-                                       thumbnail=thumbnail, 
-                                       subscribers=subscribers,
-                                       short_description=short_description,
-                                       full_description=full_description,
-                                       subscribe_url=subscribe_url,
-                                       videos=videos)
-            else:
-                return render_template('channels.html', error='Failed to retrieve channel details')
+            return render_template('channels.html', 
+                                   channel_name=channel_title, 
+                                   channel_url=channel_url, 
+                                   thumbnail=thumbnail, 
+                                   subscribers=subscribers,
+                                   short_description=short_description,
+                                   full_description=full_description,
+                                   subscribe_url=subscribe_url,
+                                   videos=videos)
         else:
             return render_template('channels.html', error='Channel not found')
 
