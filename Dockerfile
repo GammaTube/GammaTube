@@ -8,6 +8,9 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory in the container
 WORKDIR /app
 
+# Install sqlite3
+RUN apt-get update && apt-get install -y sqlite3 && apt-get clean
+
 # Copy the requirements file into the container
 COPY requirements.txt .
 
