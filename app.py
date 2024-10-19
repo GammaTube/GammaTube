@@ -67,6 +67,11 @@ def send_signup_email(to_email, username):
 
 @app.route('/')
 def index():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     print("Index route accessed")
     return render_template('index.html')
 
@@ -227,7 +232,11 @@ def login():
 
         # Retrieve the user from the database
         user = User.query.filter_by(username=username).first()
+
+        # Check if the user exists and the password matches
         if user and check_password_hash(user.password_hash, password):
+            # Store the username in the session to indicate the user is logged in
+            session['username'] = username
             flash('Login successful!', 'success')
             return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
         else:
@@ -235,7 +244,6 @@ def login():
             return redirect(url_for('login'))
 
     return render_template('login.html')
-
 
 @app.route('/playlist')
 def playlist():
