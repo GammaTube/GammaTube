@@ -167,7 +167,7 @@ def signup():
             return jsonify(success=False, message='Username already exists!'), 400
 
         # Hash the password before storing it
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password)  # Default method is fine
 
         # Create a new user and add it to the database
         new_user = User(username=username, password_hash=hashed_password)
