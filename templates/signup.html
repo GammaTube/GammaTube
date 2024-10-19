@@ -123,8 +123,7 @@
             const signupButton = document.getElementById('signup-button');
             const errorMessage = document.getElementById('error-message');
 
-            signupButton.addEventListener('click', () => {
-                // Clear previous error message
+            signupButton.addEventListener('click', async () => {
                 errorMessage.textContent = '';
 
                 const username = document.getElementById('username').value.trim();
@@ -134,9 +133,27 @@
 
                 if (username && email && password && confirmPassword) {
                     if (password === confirmPassword) {
-                        // For demonstration purposes, we'll just log to console
-                        console.log(`Username: ${username}, Email: ${email}, Password: ${password}`);
-                        // Add your signup logic here (e.g., make an API request)
+                        try {
+                            const response = await fetch('/signup', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ username, email, password })
+                            });
+
+                            const result = await response.json();
+
+                            if (result.success) {
+                                alert(result.message);
+                                window.location.href = '/login';
+                            } else {
+                                errorMessage.textContent = result.message;
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            errorMessage.textContent = 'An error occurred. Please try again.';
+                        }
                     } else {
                         errorMessage.textContent = 'Passwords do not match';
                     }
