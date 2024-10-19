@@ -2,6 +2,9 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'  # Required for session management and flashing messages
@@ -25,6 +28,39 @@ class User(db.Model):
 # Initialize the database (create tables)
 with app.app_context():
     db.create_all()
+
+
+def send_signup_email(to_email, username):
+    # Replace these credentials with your own Gmail email and app password
+    sender_email = "Gamma.scratch@gmail.com"
+    password = "wsnp cgax tjic ecxv"
+
+    # Email content
+    subject = "Account Created for GammaTube"
+    message = f"Hello {username}, your account for GammaTube has been created. Login here: https://gammatube.koyeb.app/login"
+
+    # Create the email message
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(message, 'plain'))
+
+    # Setup the SMTP server (using Gmail's SMTP server)
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.ehlo()
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, to_email, msg.as_string())
+        server.quit()
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        raise
 
 
 @app.route('/')
@@ -157,9 +193,10 @@ def signup():
         
         username = data.get('username')
         password = data.get('password')
+        email_address = data.get('email')
 
-        if not username or not password:
-            return jsonify(success=False, message='Username and password are required!'), 400
+        if not username or not password or not email_address:
+            return jsonify(success=False, message='Username, password, and email are required!'), 400
 
         # Check if the username already exists
         existing_user = User.query.filter_by(username=username).first()
@@ -170,9 +207,15 @@ def signup():
         hashed_password = generate_password_hash(password)  # Default method is fine
 
         # Create a new user and add it to the database
-        new_user = User(username=username, password_hash=hashed_password)
+        new_user = User(username=username, password_hash=hashed_password, email=email_address)
         db.session.add(new_user)
         db.session.commit()
+
+        # Send an email notification
+        try:
+            send_signup_email(email_address, username)
+        except Exception as e:
+            return jsonify(success=False, message=f'Signup successful, but failed to send email: {str(e)}'), 500
 
         return jsonify(success=True, message='Signup successful! You can now log in.'), 201
 
