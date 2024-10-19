@@ -2,8 +2,6 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
-import os
-import re
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'  # Required for session management and flashing messages
@@ -62,7 +60,7 @@ def search_page():
 
 
 @app.route('/api/search')
-def search():
+def api_search():
     query = request.args.get('query', '')
     print(f"API search accessed with query: {query}")
     if not query:
@@ -86,7 +84,6 @@ def search():
         return jsonify({'error': 'An error occurred during the search'}), 500
 
 
-# New API route for channel search
 @app.route('/api/channel_search')
 def channel_search():
     query = request.args.get('query', '')
@@ -113,7 +110,6 @@ def channel_search():
         return jsonify({'error': 'An error occurred during the channel search'}), 500
 
 
-# New API route for playlist search
 @app.route('/api/playlist_search')
 def playlist_search():
     query = request.args.get('query', '')
@@ -130,19 +126,15 @@ def playlist_search():
             title = item.get('title', 'No title')
             thumbnail = item['thumbnails'][0]['url'] if item.get('thumbnails') else 'https://via.placeholder.com/120x90'
             playlist_url = 'https://www.youtube.com/playlist?list=' + item['id']
-
-            # Extract the playlist ID from the URL by splitting at '='
-            playlist_id = playlist_url.split('=')[1]  # The ID is everything after the '='
-
-            # Extracting the video count if available
-            video_count = item.get('videoCount', 'Unknown')  # Default to 'Unknown' if not provided
+            playlist_id = item['id']
+            video_count = item.get('videoCount', 'Unknown')
 
             playlists.append({
                 'title': title,
-                'playlistId': playlist_id,  # Using the parsed ID
+                'playlistId': playlist_id,
                 'url': playlist_url,
                 'thumbnail': thumbnail,
-                'videoCount': video_count  # Adding the video count to the response
+                'videoCount': video_count
             })
 
         return jsonify(playlists)
@@ -202,15 +194,13 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/playlist')  # New route for playlist
+@app.route('/playlist')
 def playlist():
     playlist_id = request.args.get('id')
     print(f"Playlist route accessed with playlist_id: {playlist_id}")
     if not playlist_id:
         return "No playlist ID provided", 400
 
-    # Here you would typically fetch the playlist details using the playlist_id
-    # For now, we'll just render a template and pass the playlist ID
     return render_template('playlist.html', playlist_id=playlist_id)
 
 
