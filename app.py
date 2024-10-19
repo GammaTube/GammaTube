@@ -108,6 +108,11 @@ def search_page():
 
 @app.route('/api/search')
 def api_search():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     query = request.args.get('query', '')
     print(f"API search accessed with query: {query}")
     if not query:
@@ -133,6 +138,11 @@ def api_search():
 
 @app.route('/api/channel_search')
 def channel_search():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     query = request.args.get('query', '')
     print(f"Channel search accessed with query: {query}")
     if not query:
@@ -159,6 +169,11 @@ def channel_search():
 
 @app.route('/api/playlist_search')
 def playlist_search():
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+    
     query = request.args.get('query', '')
     print(f"Playlist search accessed with query: {query}")
     if not query:
