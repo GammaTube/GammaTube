@@ -7,18 +7,16 @@ app = Flask(__name__)
 app.secret_key = 'ilyaas2012'  # Required for session management and flashing messages
 
 # Configuration for the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'  # Update with your DB URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 
-# Database model for the user accounts
+# User model for the database
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)  # New field for email
-    password_hash = db.Column(db.String(120), nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -154,18 +152,19 @@ def watch():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        # Expecting JSON data in the request
+        data = request.get_json()
+        
+        username = data.get('username')
+        password = data.get('password')
 
         if not username or not password:
-            flash('Username and password are required!', 'error')
-            return redirect(url_for('signup'))
+            return jsonify(success=False, message='Username and password are required!'), 400
 
         # Check if the username already exists
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
-            flash('Username already exists!', 'error')
-            return redirect(url_for('signup'))
+            return jsonify(success=False, message='Username already exists!'), 400
 
         # Hash the password before storing it
         hashed_password = generate_password_hash(password, method='sha256')
@@ -175,8 +174,7 @@ def signup():
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Signup successful! You can now log in.', 'success')
-        return redirect(url_for('login'))
+        return jsonify(success=True, message='Signup successful! You can now log in.'), 201
 
     return render_template('signup.html')
 
@@ -210,4 +208,5 @@ def playlist():
 
 
 if __name__ == '__main__':
+    db.create_all()  # Create database tables
     app.run(debug=True)
