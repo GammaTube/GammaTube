@@ -153,8 +153,12 @@ def watch():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not username or not password:
+            flash('Username and password are required!', 'error')
+            return redirect(url_for('signup'))
 
         # Check if the username already exists
         existing_user = User.query.filter_by(username=username).first()
