@@ -83,9 +83,20 @@
         }
 
         /* Styles for Google Sign-In button */
-        .g_id_signin {
+        .google-button {
             width: 100%;
+            padding: 10px;
             margin-top: 10px;
+            background: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .google-button:hover {
+            background: #357ae8;
         }
 
         /* Centering the welcome message */
@@ -111,12 +122,8 @@
              data-callback="handleCredentialResponse"
              data-auto_prompt="false">
         </div>
-        <div class="g_id_signin"
-             data-type="standard"
-             data-shape="rectangular"
-             data-theme="outline"
-             data-text="sign_in_with"
-             data-size="large">
+        <div id="google-signin-button" class="google-button" onclick="google.accounts.id.prompt()">
+            Sign in with Google
         </div>
     </div>
 
