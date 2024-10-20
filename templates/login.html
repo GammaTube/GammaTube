@@ -82,9 +82,16 @@
             --primary-dark: #0056b3;
         }
 
+        /* Styles for Google Sign-In button */
+        .g_id_signin {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Centering the welcome message */
         #welcome-message {
-            margin-top: 20px;
             display: none;
+            text-align: center;
         }
     </style>
 </head>
@@ -111,23 +118,30 @@
              data-text="sign_in_with"
              data-size="large">
         </div>
-        
-        <!-- Welcome message after login -->
-        <div id="welcome-message">
-            <h2>Welcome back, <span id="user-name"></span>!</h2>
-        </div>
+    </div>
+
+    <!-- Welcome message after login -->
+    <div id="welcome-message">
+        <h2>Welcome back, <span id="user-name"></span>!</h2>
     </div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         function handleCredentialResponse(response) {
             const userObject = jwt_decode(response.credential);
-            
-            // Show the user's name
+
+            // Hide all elements except the welcome message
+            document.querySelector('.login-container').style.display = 'none';
+
+            // Show the welcome message in the center of the screen
             const welcomeMessage = document.getElementById('welcome-message');
             const userNameSpan = document.getElementById('user-name');
             userNameSpan.textContent = userObject.name;
-            welcomeMessage.style.display = 'block';
+            welcomeMessage.style.display = 'flex';
+            welcomeMessage.style.flexDirection = 'column';
+            welcomeMessage.style.justifyContent = 'center';
+            welcomeMessage.style.alignItems = 'center';
+            welcomeMessage.style.height = '100vh';
         }
 
         // JWT decode function
