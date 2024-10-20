@@ -252,23 +252,55 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        if 'credential' in request.form:
+            # Handle Google Sign-In
+            token = request.form['credential']
+            # Verify the token using Google API
+            response = requests.get(
+                f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
+            )
+            
+            if response.status_code == 200:
+                user_info = response.json()
+                google_username = user_info.get('name')
+                google_email = user_info.get('email')
 
-        # Retrieve the user from the database
-        user = User.query.filter_by(username=username).first()
+                # Check if the user already exists in the database
+                user = User.query.filter_by(username=google_email).first()
 
-        # Check if the user exists and the password matches
-        if user and check_password_hash(user.password_hash, password):
-            # Store the username in the session to indicate the user is logged in
-            session['username'] = username
-            flash('Login successful!', 'success')
-            return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
+                if user:
+                    # User exists, log them in
+                    session['username'] = google_email
+                    flash(f'Welcome back, {google_username}!', 'success')
+                    return redirect(url_for('index'))
+                else:
+                    # User does not exist, create a new user if you want to support this
+                    # Alternatively, flash a message that the account is not registered.
+                    flash('Google account is not registered. Please sign up first.', 'error')
+                    return redirect(url_for('signup'))
+            else:
+                flash('Invalid Google token. Please try again.', 'error')
+                return redirect(url_for('login'))
         else:
-            flash('Invalid username or password!', 'error')
-            return redirect(url_for('login'))
+            # Handle traditional username/password login
+            username = request.form['username']
+            password = request.form['password']
+
+            # Retrieve the user from the database
+            user = User.query.filter_by(username=username).first()
+
+            # Check if the user exists and the password matches
+            if user and check_password_hash(user.password_hash, password):
+                # Store the username in the session to indicate the user is logged in
+                session['username'] = username
+                flash('Login successful!', 'success')
+                return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
+            else:
+                flash('Invalid username or password!', 'error')
+                return redirect(url_for('login'))
 
     return render_template('login.html')
+
 
 @app.route('/playlist')
 def playlist():
