@@ -83,20 +83,10 @@
         }
 
         /* Styles for Google Sign-In button */
-        .google-button {
+        .g_id_signin {
             width: 100%;
-            padding: 10px;
             margin-top: 10px;
-            background: #4285F4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .google-button:hover {
-            background: #357ae8;
+            display: inline-block;
         }
 
         /* Centering the welcome message */
@@ -117,7 +107,18 @@
         </form>
 
         <!-- Google Sign-In Button -->
-        <button class="google-button" id="google-login-button">Sign in with Google</button>
+        <div id="g_id_onload"
+             data-client_id="1035452209071-4tp3c47n26euteh7nt7fkl4vf37lhd61.apps.googleusercontent.com"  <!-- Replace with your client ID -->
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-size="large">
+        </div>
     </div>
 
     <!-- Welcome message after login -->
@@ -127,45 +128,31 @@
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
-        // Initialize Google Sign-In
-        window.onload = function () {
-            google.accounts.id.initialize({
-                client_id: "1035452209071-4tp3c47n26euteh7nt7fkl4vf37lhd61.apps.googleusercontent.com",
-                callback: handleCredentialResponse
-            });
-
-            // Attach click handler to trigger Google One Tap Sign-In manually
-            document.getElementById('google-login-button').onclick = function () {
-                google.accounts.id.prompt(); // Triggers the Google Sign-In popup
-            };
-        };
-
         function handleCredentialResponse(response) {
             const userObject = jwt_decode(response.credential);
 
-            // Post Google token to the server
-            const form = new FormData();
-            form.append('credential', response.credential);
+            // Hide the login container and show the welcome message
+            document.querySelector('.login-container').style.display = 'none';
 
+            // Update the welcome message with the user's name
+            const welcomeMessage = document.getElementById('welcome-message');
+            const userNameSpan = document.getElementById('user-name');
+            userNameSpan.textContent = userObject.name;
+            welcomeMessage.style.display = 'flex';
+            welcomeMessage.style.flexDirection = 'column';
+            welcomeMessage.style.justifyContent = 'center';
+            welcomeMessage.style.alignItems = 'center';
+            welcomeMessage.style.height = '100vh';
+
+            // Here you can send the token to your server for verification
+            const formData = new FormData();
+            formData.append('credential', response.credential);
             fetch('/login', {
                 method: 'POST',
-                body: form
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show the welcome message in the center of the screen
-                    document.querySelector('.login-container').style.display = 'none';
-                    const welcomeMessage = document.getElementById('welcome-message');
-                    const userNameSpan = document.getElementById('user-name');
-                    userNameSpan.textContent = userObject.name;
-                    welcomeMessage.style.display = 'flex';
-                    welcomeMessage.style.flexDirection = 'column';
-                    welcomeMessage.style.justifyContent = 'center';
-                    welcomeMessage.style.alignItems = 'center';
-                    welcomeMessage.style.height = '100vh';
-                } else {
-                    alert(data.message);
+                body: formData,
+            }).then(res => {
+                if (res.ok) {
+                    window.location.href = 'https://gammatube.koyeb.app/'; // Redirect to home page after successful login
                 }
             });
         }
