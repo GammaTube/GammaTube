@@ -255,7 +255,6 @@ def login():
         if 'credential' in request.form:
             # Handle Google Sign-In
             token = request.form['credential']
-            # Verify the token using Google API
             response = requests.get(
                 f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
             )
@@ -268,9 +267,12 @@ def login():
                 # Add the Google user's name and email to the session
                 session['username'] = google_name
                 session['email'] = google_email
-                
-                flash(f'Welcome back, {google_name}!', 'success')
-                return redirect(url_for('index'))  # Redirect to the homepage
+
+                # Print a message for debugging
+                print(f"Logged in with Google: {google_name} ({google_email})")
+
+                # Redirect to the homepage
+                return redirect("https://gammatube.koyeb.app/")
             else:
                 flash('Invalid Google token. Please try again.', 'error')
                 return redirect(url_for('login'))
@@ -284,10 +286,9 @@ def login():
 
             # Check if the user exists and the password matches
             if user and check_password_hash(user.password_hash, password):
-                # Store the username in the session to indicate the user is logged in
                 session['username'] = username
                 flash('Login successful!', 'success')
-                return redirect(url_for('index'))  # Redirect to the main page
+                return redirect(url_for('index'))
             else:
                 flash('Invalid username or password!', 'error')
                 return redirect(url_for('login'))
