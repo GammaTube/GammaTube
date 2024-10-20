@@ -81,6 +81,11 @@
             --primary-light: #007bff;
             --primary-dark: #0056b3;
         }
+
+        #welcome-message {
+            margin-top: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -92,9 +97,50 @@
             <button type="submit">Login</button>
             <p>Don't have an account? <a href="signup">Sign Up</a></p>
         </form>
+
+        <!-- Google Sign-In Button -->
+        <div id="g_id_onload"
+             data-client_id="1035452209071-4tp3c47n26euteh7nt7fkl4vf37lhd61.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-size="large">
+        </div>
+        
+        <!-- Welcome message after login -->
+        <div id="welcome-message">
+            <h2>Welcome back, <span id="user-name"></span>!</h2>
+        </div>
     </div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+        function handleCredentialResponse(response) {
+            const userObject = jwt_decode(response.credential);
+            
+            // Show the user's name
+            const welcomeMessage = document.getElementById('welcome-message');
+            const userNameSpan = document.getElementById('user-name');
+            userNameSpan.textContent = userObject.name;
+            welcomeMessage.style.display = 'block';
+        }
+
+        // JWT decode function
+        function jwt_decode(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            return JSON.parse(jsonPayload);
+        }
+
         // Handle form submission
         document.getElementById('login-form').addEventListener('submit', function(event) {
             const username = document.querySelector('input[name="username"]').value;
