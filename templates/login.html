@@ -81,88 +81,20 @@
             --primary-light: #007bff;
             --primary-dark: #0056b3;
         }
-
-        /* Styles for Google Sign-In button */
-        .g_id_signin {
-            width: 100%;
-            margin-top: 10px;
-            display: inline-block;
-        }
-
-        /* Centering the welcome message */
-        #welcome-message {
-            display: none;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h2>Login to GammaTube</h2>
-        <form method="POST" action="/login" id="login-form">
+        <form method="POST" action="/login" id="login-form">  <!-- Ensure form submits to the right route -->
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
             <p>Don't have an account? <a href="signup">Sign Up</a></p>
         </form>
-
-    <!-- Google Sign-In Button -->
-    <div id="g_id_onload"
-         data-client_id="1035452209071-4tp3c47n26euteh7nt7fkl4vf37lhd61.apps.googleusercontent.com"  <!-- Replace with your client ID -->
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-shape="rectangular"
-         data-theme="outline"
-         data-text="sign_in_with"
-         data-size="large">
     </div>
 
-    <!-- Welcome message after login -->
-    <div id="welcome-message">
-        <h2>Welcome back, <span id="user-name"></span>!</h2>
-    </div>
-
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
-    function handleCredentialResponse(response) {
-        // Decode the JWT to get user info
-        const userObject = jwt_decode(response.credential);
-        
-        // Prepare data to send to the server
-        const formData = new FormData();
-        formData.append('credential', response.credential);
-
-        // Fetch call to your Flask endpoint
-        fetch('/login', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(res => {
-            if (res.ok) {
-                window.location.href = '/'; // Redirect to the home page
-            } else {
-                alert('Login failed! Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error during login:', error);
-            alert('An error occurred. Please try again later.');
-        });
-    }
-        // JWT decode function
-        function jwt_decode(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-
-            return JSON.parse(jsonPayload);
-        }
-
         // Handle form submission
         document.getElementById('login-form').addEventListener('submit', function(event) {
             const username = document.querySelector('input[name="username"]').value;
