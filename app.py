@@ -6,7 +6,6 @@ from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import requests  # Make sure to import requests for Google token verification
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'  # Required for session management and flashing messages
@@ -22,7 +21,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)  # Consistent usage of db.Column
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -34,8 +33,9 @@ with app.app_context():
 
 
 def send_signup_email(to_email, username):
+    # Replace these credentials with your own Gmail email and app password
     sender_email = "Gamma.scratch@gmail.com"
-    password = "wsnp cgax tjic ecxv"  # Replace with your app password
+    password = "wsnp cgax tjic ecxv"
 
     # Email content
     subject = "Account Created for GammaTube"
@@ -48,7 +48,7 @@ def send_signup_email(to_email, username):
     msg['Subject'] = subject
     msg.attach(MIMEText(message, 'plain'))
 
-    # Setup the SMTP server
+    # Setup the SMTP server (using Gmail's SMTP server)
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
 
@@ -67,20 +67,22 @@ def send_signup_email(to_email, username):
 
 @app.route('/')
 def index():
+    # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
-
+    
     print("Index route accessed")
     return render_template('index.html')
 
 
 @app.route('/search')
 def search_page():
+    # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
-
+        
     query = request.args.get('query', '')
     print(f"Search page accessed with query: {query}")
     if query:
@@ -106,10 +108,11 @@ def search_page():
 
 @app.route('/api/search')
 def api_search():
+    # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
-
+    
     query = request.args.get('query', '')
     print(f"API search accessed with query: {query}")
     if not query:
@@ -135,10 +138,11 @@ def api_search():
 
 @app.route('/api/channel_search')
 def channel_search():
+    # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
-
+    
     query = request.args.get('query', '')
     print(f"Channel search accessed with query: {query}")
     if not query:
@@ -165,10 +169,11 @@ def channel_search():
 
 @app.route('/api/playlist_search')
 def playlist_search():
+    # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
-
+    
     query = request.args.get('query', '')
     print(f"Playlist search accessed with query: {query}")
     if not query:
@@ -202,10 +207,11 @@ def playlist_search():
 
 @app.route('/watch')
 def watch():
+     # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
-
+    
     video_id = request.args.get('v')
     print(f"Watch route accessed with video_id: {video_id}")
     return render_template('watch.html', video_id=video_id)
@@ -246,61 +252,31 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if 'credential' in request.form:
-            # Handle Google Sign-In
-            token = request.form['credential']
-            response = requests.get(
-                f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
-            )
+        username = request.form['username']
+        password = request.form['password']
 
-            if response.status_code == 200:
-                user_info = response.json()
-                google_name = user_info.get('name')
-                google_email = user_info.get('email')
+        # Retrieve the user from the database
+        user = User.query.filter_by(username=username).first()
 
-                # Check if the user exists in the database
-                existing_user = User.query.filter_by(email=google_email).first()
-                if existing_user:
-                    session['username'] = existing_user.username
-                    session['email'] = google_email
-                    flash('Login successful!', 'success')
-                else:
-                    # If the user does not exist, create a new user
-                    new_user = User(username=google_name, email=google_email, password_hash='')  # Password is not needed for Google users
-                    db.session.add(new_user)
-                    db.session.commit()
-                    session['username'] = google_name
-                    session['email'] = google_email
-                    flash('Account created and logged in successfully!', 'success')
-
-                print(f"Logged in with Google: {google_name} ({google_email})")
-                return redirect(url_for('index'))  # Redirect to the index page
-            else:
-                flash('Invalid Google token. Please try again.', 'error')
-                return redirect(url_for('login'))
+        # Check if the user exists and the password matches
+        if user and check_password_hash(user.password_hash, password):
+            # Store the username in the session to indicate the user is logged in
+            session['username'] = username
+            flash('Login successful!', 'success')
+            return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
         else:
-            # Handle traditional username/password login
-            username = request.form['username']
-            password = request.form['password']
-
-            user = User.query.filter_by(username=username).first()
-            if user and check_password_hash(user.password_hash, password):
-                session['username'] = username
-                flash('Login successful!', 'success')
-                return redirect(url_for('index'))
-            else:
-                flash('Invalid username or password!', 'error')
-                return redirect(url_for('login'))
+            flash('Invalid username or password!', 'error')
+            return redirect(url_for('login'))
 
     return render_template('login.html')
 
-
 @app.route('/playlist')
 def playlist():
+     # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
-
+    
     playlist_id = request.args.get('id')
     print(f"Playlist route accessed with playlist_id: {playlist_id}")
     if not playlist_id:
