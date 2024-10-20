@@ -109,7 +109,7 @@
 <body>
     <div class="login-container">
         <h2>Login to GammaTube</h2>
-        <form method="POST" action="/login" id="login-form">  <!-- Ensure form submits to the right route -->
+        <form method="POST" action="/login" id="login-form">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
@@ -117,14 +117,7 @@
         </form>
 
         <!-- Google Sign-In Button -->
-        <div id="g_id_onload"
-             data-client_id="1035452209071-4tp3c47n26euteh7nt7fkl4vf37lhd61.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
-        </div>
-        <div id="google-signin-button" class="google-button" onclick="google.accounts.id.prompt()">
-            Sign in with Google
-        </div>
+        <button class="google-button" id="google-login-button">Sign in with Google</button>
     </div>
 
     <!-- Welcome message after login -->
@@ -134,21 +127,47 @@
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+        // Initialize Google Sign-In
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "1035452209071-4tp3c47n26euteh7nt7fkl4vf37lhd61.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
+
+            // Attach click handler to trigger Google One Tap Sign-In manually
+            document.getElementById('google-login-button').onclick = function () {
+                google.accounts.id.prompt(); // Triggers the Google Sign-In popup
+            };
+        };
+
         function handleCredentialResponse(response) {
             const userObject = jwt_decode(response.credential);
 
-            // Hide all elements except the welcome message
-            document.querySelector('.login-container').style.display = 'none';
+            // Post Google token to the server
+            const form = new FormData();
+            form.append('credential', response.credential);
 
-            // Show the welcome message in the center of the screen
-            const welcomeMessage = document.getElementById('welcome-message');
-            const userNameSpan = document.getElementById('user-name');
-            userNameSpan.textContent = userObject.name;
-            welcomeMessage.style.display = 'flex';
-            welcomeMessage.style.flexDirection = 'column';
-            welcomeMessage.style.justifyContent = 'center';
-            welcomeMessage.style.alignItems = 'center';
-            welcomeMessage.style.height = '100vh';
+            fetch('/login', {
+                method: 'POST',
+                body: form
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show the welcome message in the center of the screen
+                    document.querySelector('.login-container').style.display = 'none';
+                    const welcomeMessage = document.getElementById('welcome-message');
+                    const userNameSpan = document.getElementById('user-name');
+                    userNameSpan.textContent = userObject.name;
+                    welcomeMessage.style.display = 'flex';
+                    welcomeMessage.style.flexDirection = 'column';
+                    welcomeMessage.style.justifyContent = 'center';
+                    welcomeMessage.style.alignItems = 'center';
+                    welcomeMessage.style.height = '100vh';
+                } else {
+                    alert(data.message);
+                }
+            });
         }
 
         // JWT decode function
