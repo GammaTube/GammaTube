@@ -262,22 +262,15 @@ def login():
             
             if response.status_code == 200:
                 user_info = response.json()
-                google_username = user_info.get('name')
+                google_name = user_info.get('name')
                 google_email = user_info.get('email')
 
-                # Check if the user already exists in the database
-                user = User.query.filter_by(username=google_email).first()
-
-                if user:
-                    # User exists, log them in
-                    session['username'] = google_email
-                    flash(f'Welcome back, {google_username}!', 'success')
-                    return redirect(url_for('index'))
-                else:
-                    # User does not exist, create a new user if you want to support this
-                    # Alternatively, flash a message that the account is not registered.
-                    flash('Google account is not registered. Please sign up first.', 'error')
-                    return redirect(url_for('signup'))
+                # Add the Google user's name and email to the session
+                session['username'] = google_name
+                session['email'] = google_email
+                
+                flash(f'Welcome back, {google_name}!', 'success')
+                return redirect(url_for('index'))  # Redirect to the homepage
             else:
                 flash('Invalid Google token. Please try again.', 'error')
                 return redirect(url_for('login'))
@@ -286,7 +279,7 @@ def login():
             username = request.form['username']
             password = request.form['password']
 
-            # Retrieve the user from the database
+            # Retrieve the user from the database (if implemented)
             user = User.query.filter_by(username=username).first()
 
             # Check if the user exists and the password matches
@@ -294,7 +287,7 @@ def login():
                 # Store the username in the session to indicate the user is logged in
                 session['username'] = username
                 flash('Login successful!', 'success')
-                return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
+                return redirect(url_for('index'))  # Redirect to the main page
             else:
                 flash('Invalid username or password!', 'error')
                 return redirect(url_for('login'))
