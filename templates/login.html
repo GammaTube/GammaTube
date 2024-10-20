@@ -128,40 +128,31 @@
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
-        function handleCredentialResponse(response) {
-            const userObject = jwt_decode(response.credential);
+    function handleCredentialResponse(response) {
+        // Decode the JWT to get user info
+        const userObject = jwt_decode(response.credential);
+        
+        // Prepare data to send to the server
+        const formData = new FormData();
+        formData.append('credential', response.credential);
 
-            // Hide the login container and show the welcome message
-            document.querySelector('.login-container').style.display = 'none';
-
-            // Update the welcome message with the user's name
-            const welcomeMessage = document.getElementById('welcome-message');
-            const userNameSpan = document.getElementById('user-name');
-            userNameSpan.textContent = userObject.name;
-            welcomeMessage.style.display = 'flex';
-            welcomeMessage.style.flexDirection = 'column';
-            welcomeMessage.style.justifyContent = 'center';
-            welcomeMessage.style.alignItems = 'center';
-            welcomeMessage.style.height = '100vh';
-
-            // Send the token to your server for verification
-            const formData = new FormData();
-            formData.append('credential', response.credential);
-            fetch('/login', {
-                method: 'POST',
-                body: formData,
-            }).then(res => {
-                if (res.ok) {
-                    window.location.href = 'https://gammatube.koyeb.app/'; // Redirect to home page after successful login
-                } else {
-                    alert('Login failed! Please try again.');
-                }
-            }).catch(error => {
-                console.error('Error during login:', error);
-                alert('An error occurred. Please try again later.');
-            });
-        }
-
+        // Fetch call to your Flask endpoint
+        fetch('/login', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(res => {
+            if (res.ok) {
+                window.location.href = '/'; // Redirect to the home page
+            } else {
+                alert('Login failed! Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error during login:', error);
+            alert('An error occurred. Please try again later.');
+        });
+    }
         // JWT decode function
         function jwt_decode(token) {
             const base64Url = token.split('.')[1];
