@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
-app.secret_key = '#####'
+app.secret_key = 'ilyaas2012'
 
 # Configuration for the database
 app.config['SQLALCHEMY_DATABASE_URI'] = postgresql://postgres.bmxyjwxajvbbglhewpqr:gamma-tube-@aws-0-eu-central-1.pooler.supabase.com:6543/postgres'
@@ -35,7 +35,7 @@ with app.app_context():
 def send_signup_email(to_email, username):
     # 
     sender_email = "Gamma.scratch@gmail.com"
-    password = "######"
+    password = "wsnp cgax tjic ecxv"
 
     # Email content
     subject = "Account Created for GammaTube"
