@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = '#####'
 
 # Configuration for the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = postgresql://postgres.bmxyjwxajvbbglhewpqr:gamma-tube-@aws-0-eu-central-1.pooler.supabase.com:6543/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
