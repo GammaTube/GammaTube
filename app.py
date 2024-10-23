@@ -8,10 +8,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
-app.secret_key = 'ilyaas2012'  # Required for session management and flashing messages
+app.secret_key = '#####'
 
 # Configuration for the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'  # Update with your DB URI
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -33,9 +33,9 @@ with app.app_context():
 
 
 def send_signup_email(to_email, username):
-    # Replace these credentials with your own Gmail email and app password
+    # 
     sender_email = "Gamma.scratch@gmail.com"
-    password = "wsnp cgax tjic ecxv"
+    password = "######"
 
     # Email content
     subject = "Account Created for GammaTube"
