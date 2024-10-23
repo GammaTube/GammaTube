@@ -30,12 +30,12 @@ class User(db.Model):
 # Watch history model for the database
 class WatchHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    username = db.Column(db.String(255), nullable=False)  # Store the username instead of user_id
     video_id = db.Column(db.String(255), nullable=False)  # Store the video ID
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())  # When the video was watched
 
     def __repr__(self):
-        return f'<WatchHistory user_id={self.user_id}, video_id={self.video_id}, timestamp={self.timestamp}>'
+        return f'<WatchHistory username={self.username}, video_id={self.video_id}, timestamp={self.timestamp}>'
 
 
 # Initialize the database (create tables)
@@ -226,14 +226,13 @@ def watch():
     video_id = request.args.get('v')
     print(f"Watch route accessed with video_id: {video_id}")
     
-    # Retrieve the user from the session
-    user = User.query.filter_by(username=session['username']).first()
+    # Retrieve the username from the session
+    username = session['username']
     
     # Log the video in watch history
-    if user:
-        new_history_entry = WatchHistory(user_id=user.id, video_id=video_id)
-        db.session.add(new_history_entry)
-        db.session.commit()
+    new_history_entry = WatchHistory(username=username, video_id=video_id)
+    db.session.add(new_history_entry)
+    db.session.commit()
     
     return render_template('watch.html', video_id=video_id)
 
@@ -313,14 +312,16 @@ def watch_history():
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
     
-    user = User.query.filter_by(username=session['username']).first()
-    if user:
-        history = WatchHistory.query.filter_by(user_id=user.id).order_by(WatchHistory.timestamp.desc()).all()
-        print(f"Watch history accessed for user: {user.username}")
+    username = session['username']  # Retrieve the username from the session
+    
+    # Query the watch history using the username instead of user_id
+    history = WatchHistory.query.filter_by(username=username).order_by(WatchHistory.timestamp.desc()).all()
+    print(f"Watch history accessed for user: {username}")
 
+    if history:
         return render_template('watch_history.html', history=history)
-
-    return render_template('watch_history.html', error="No watch history found.")
+    else:
+        return render_template('watch_history.html', error="No watch history found.")
 
 
 if __name__ == '__main__':
