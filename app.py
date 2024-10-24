@@ -246,25 +246,12 @@ def watch():
             # Debug: Print the entire videoInfo response
             print(f"Video Info Retrieved: {videoInfo}")
             
-            if videoInfo:
-                # Safely extract required fields from videoInfo dictionary
-                video_name = videoInfo.get('title', 'Unknown')
-                duration = videoInfo.get('duration', {}).get('secondsText', 'N/A')
-                view_count = videoInfo.get('viewCount', {}).get('text', 'N/A')
-                thumbnails = videoInfo.get('thumbnails', [])
-                description = videoInfo.get('description', 'No description available.')
-                publish_date = videoInfo.get('publishDate', 'Unknown')
-                channel_name = videoInfo.get('channel', {}).get('name', 'Unknown')
-
-                # Print some key details for debugging
+            # Safely extract only the video name (title)
+            if videoInfo and 'title' in videoInfo:
+                video_name = videoInfo['title']
                 print(f"Video Title: {video_name}")
-                print(f"Video Duration: {duration} seconds")
-                print(f"Video View Count: {view_count}")
-                print(f"Channel Name: {channel_name}")
             else:
-                print("Failed to retrieve valid video info.")
-        else:
-            print("Invalid or missing video_id")
+                print("Video info does not contain a title, using default value.")
     
     except Exception as e:
         print(f"Failed to fetch video information for video_id '{video_id}': {e}")
@@ -273,19 +260,9 @@ def watch():
     new_history_entry = WatchHistory(username=username, video_id=video_id, video_name=video_name)
     db.session.add(new_history_entry)
     db.session.commit()
-    
-    # Pass the video details to the template (including optional fields)
-    return render_template(
-        'watch.html', 
-        video_id=video_id, 
-        video_name=video_name, 
-        description=description,
-        view_count=view_count,
-        duration=duration,
-        thumbnails=thumbnails,
-        channel_name=channel_name,
-        publish_date=publish_date
-    )
+
+    # Pass only the video_name to the template
+    return render_template('watch.html', video_id=video_id, video_name=video_name)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():    
