@@ -246,8 +246,9 @@ def watch():
             print(f"Video Info Retrieved: {videoInfo}")
             
             # Safely extract only the video name (title), handling NoneType
-            video_name = videoInfo.get('title', 'Unknown Title')
-            print(f"Video Title: {video_name}")
+            video_name = videoInfo.get('title')
+            if video_name is None:
+                video_name = 'Unknown Title'
     
     except Exception as e:
         print(f"Failed to fetch video information for video_id '{video_id}': {e}")
