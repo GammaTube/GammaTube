@@ -227,7 +227,7 @@ def watch():
     video_id = request.args.get('v')
     if not video_id:
         print("No video ID provided, redirecting to homepage")
-        return redirect(url_for('index'))  # Redirect to the index page or an appropriate route
+        return redirect(url_for('index'))
 
     print(f"Watch route accessed with video_id: {video_id}")
     
@@ -235,31 +235,58 @@ def watch():
     username = session['username']
     
     # Initialize default video name
-    video_name = 'Unknown'  # Default value if fetching fails
+    video_name = 'Unknown'
 
     # Fetch video information using the video ID
     try:
-        videoInfo = Video.getInfo(f'https://www.youtube.com/watch?v={video_id}', mode=ResultMode.json)
-        
-        # Debug: Print the entire videoInfo response
-        print(f"Video Info Retrieved: {videoInfo}")
-        
-        # Safely access the title
-        if videoInfo and 'title' in videoInfo:
-            video_name = videoInfo['title']
-            print(f"Fetched video name: {video_name}")
+        if video_id:
+            video_url = f'https://www.youtube.com/watch?v={video_id}'
+            videoInfo = Video.getInfo(video_url, mode=ResultMode.json)
+
+            # Debug: Print the entire videoInfo response
+            print(f"Video Info Retrieved: {videoInfo}")
+            
+            if videoInfo:
+                # Safely extract required fields from videoInfo dictionary
+                video_name = videoInfo.get('title', 'Unknown')
+                duration = videoInfo.get('duration', {}).get('secondsText', 'N/A')
+                view_count = videoInfo.get('viewCount', {}).get('text', 'N/A')
+                thumbnails = videoInfo.get('thumbnails', [])
+                description = videoInfo.get('description', 'No description available.')
+                publish_date = videoInfo.get('publishDate', 'Unknown')
+                channel_name = videoInfo.get('channel', {}).get('name', 'Unknown')
+
+                # Print some key details for debugging
+                print(f"Video Title: {video_name}")
+                print(f"Video Duration: {duration} seconds")
+                print(f"Video View Count: {view_count}")
+                print(f"Channel Name: {channel_name}")
+            else:
+                print("Failed to retrieve valid video info.")
         else:
-            print("Video info does not contain a title, using default value.")
+            print("Invalid or missing video_id")
     
     except Exception as e:
-        print(f"Failed to fetch video information: {e}")
-    
+        print(f"Failed to fetch video information for video_id '{video_id}': {e}")
+
     # Log the video in watch history with the video name
     new_history_entry = WatchHistory(username=username, video_id=video_id, video_name=video_name)
     db.session.add(new_history_entry)
     db.session.commit()
     
-    return render_template('watch.html', video_id=video_id, video_name=video_name)  # Pass video_name to the template
+    # Pass the video details to the template (including optional fields)
+    return render_template(
+        'watch.html', 
+        video_id=video_id, 
+        video_name=video_name, 
+        description=description,
+        view_count=view_count,
+        duration=duration,
+        thumbnails=thumbnails,
+        channel_name=channel_name,
+        publish_date=publish_date
+    )
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():    
     if request.method == 'POST':
