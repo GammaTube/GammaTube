@@ -219,33 +219,38 @@ def playlist_search():
 
 @app.route('/watch')
 def watch():
-    # Check if the user is logged in by checking the session
+    # Check if the user is logged in
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
         return redirect(url_for('login'))
     
     video_id = request.args.get('v')
+    if not video_id:
+        print("No video ID provided, redirecting to homepage")
+        return redirect(url_for('index'))  # Redirect to the index page or an appropriate route
+
     print(f"Watch route accessed with video_id: {video_id}")
     
     # Retrieve the username from the session
     username = session['username']
     
-    # Fetch video name using the video ID
+    # Initialize default video name
+    video_name = 'Unknown'  # Default value if fetching fails
+
+    # Fetch video information using the video ID
     try:
-        video = Video.get(f'https://www.youtube.com/watch?v={video_id}', mode=ResultMode.json)
-        video_name = video['title']
+        videoInfo = Video.getInfo(f'https://www.youtube.com/watch?v={video_id}', mode=ResultMode.json)
+        video_name = videoInfo['title'] if 'title' in videoInfo else video_name  # Safely access the title
         print(f"Fetched video name: {video_name}")
     except Exception as e:
-        print(f"Failed to fetch video name: {e}")
-        video_name = 'Unknown'  # Default value if fetching fails
-    
+        print(f"Failed to fetch video information: {e}")
+
     # Log the video in watch history with the video name
     new_history_entry = WatchHistory(username=username, video_id=video_id, video_name=video_name)
     db.session.add(new_history_entry)
     db.session.commit()
     
-    return render_template('watch.html', video_id=video_id)
-
+    return render_template('watch.html', video_id=video_id, video_name=video_name)  # Pass video_name to the template
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():    
