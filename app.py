@@ -237,7 +237,6 @@ def watch():
     # Initialize default video name
     video_name = 'Unknown'
 
-    # Fetch video information using the video ID
     try:
         if video_id:
             video_url = f'https://www.youtube.com/watch?v={video_id}'
@@ -246,16 +245,13 @@ def watch():
             # Debug: Print the entire videoInfo response
             print(f"Video Info Retrieved: {videoInfo}")
             
-            # Safely extract only the video name (title)
-            if videoInfo and 'title' in videoInfo:
-                video_name = videoInfo['title']
-                print(f"Video Title: {video_name}")
-            else:
-                print("Video info does not contain a title, using default value.")
+            # Safely extract only the video name (title), handling NoneType
+            video_name = videoInfo.get('title', 'Unknown Title')
+            print(f"Video Title: {video_name}")
     
     except Exception as e:
         print(f"Failed to fetch video information for video_id '{video_id}': {e}")
-
+    
     # Log the video in watch history with the video name
     new_history_entry = WatchHistory(username=username, video_id=video_id, video_name=video_name)
     db.session.add(new_history_entry)
