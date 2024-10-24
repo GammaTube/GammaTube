@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
-from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video
+from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video, ResultMode
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
