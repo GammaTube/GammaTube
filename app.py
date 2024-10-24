@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
-from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch
+from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, video
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -32,10 +32,11 @@ class WatchHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), nullable=False)  # Store the username instead of user_id
     video_id = db.Column(db.String(255), nullable=False)  # Store the video ID
+    video_name = db.Column(db.String(255), nullable=False)  # Store the video name
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())  # When the video was watched
 
     def __repr__(self):
-        return f'<WatchHistory username={self.username}, video_id={self.video_id}, timestamp={self.timestamp}>'
+        return f'<WatchHistory username={self.username}, video_id={self.video_id}, video_name={self.video_name}, timestamp={self.timestamp}>'
 
 
 # Initialize the database (create tables)
@@ -229,8 +230,17 @@ def watch():
     # Retrieve the username from the session
     username = session['username']
     
-    # Log the video in watch history
-    new_history_entry = WatchHistory(username=username, video_id=video_id)
+    # Fetch video name using the video ID
+    try:
+        video = Video.get(f'https://www.youtube.com/watch?v={video_id}', mode=ResultMode.json)
+        video_name = video['title']
+        print(f"Fetched video name: {video_name}")
+    except Exception as e:
+        print(f"Failed to fetch video name: {e}")
+        video_name = 'Unknown'  # Default value if fetching fails
+    
+    # Log the video in watch history with the video name
+    new_history_entry = WatchHistory(username=username, video_id=video_id, video_name=video_name)
     db.session.add(new_history_entry)
     db.session.commit()
     
