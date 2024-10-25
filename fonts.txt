@@ -1,0 +1,2 @@
+Audiowide: https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Audiowide&family=Great+Vibes&family=Italianno&family=Updock&display=swap
+Orbitron: https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Audiowide&family=Great+Vibes&family=Italianno&family=Orbitron:wght@400..900&family=Updock&display=swap
