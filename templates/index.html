@@ -4,16 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GammaTube</title>
+    
     <link rel="icon" type="image/png" sizes="32x32" href="https://titanicsearch.neocities.org/favicon.png">
     
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-KPDK6GPQ');</script>
-    <!-- End Google Tag Manager -->
-
     <style>
         /* General styles */
         body {
@@ -92,7 +85,6 @@
         .menu button.dark-mode:hover {
             background-color: var(--primary-dark);
         }
-        
         /* Search container styles */
         #search-container {
             display: flex;
@@ -124,6 +116,7 @@
         #search-button:hover {
             background: var(--primary-dark);
         }
+
 
         /* Video container styles */
         #video-container {
@@ -243,11 +236,6 @@
     </style>
 </head>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KPDK6GPQ"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-
     <div id="menu-button">⋮</div>
     <div class="menu">
         <button id="toggle-dark-mode">Toggle Dark Mode</button>
@@ -278,24 +266,81 @@
         </div>
         <div class="suggested-video-card">
             <a href="/watch?v=c9tBY6dC7Nw">
-                <img src="https://img.youtube.com/vi/c9tBY6dC7Nw/hqdefault.jpg" alt="NINJAGO: Zane’s Best Moments | Compilation | LEGO Ninjago: Legacy | Prime Video">
-                <h3>NINJAGO: Zane’s Best Moments | Compilation | LEGO Ninjago: Legacy | Prime Video</h3>
+                <img src="https://img.youtube.com/vi/c9tBY6dC7Nw/hqdefault.jpg" alt="NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies">
+                <h3>NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies</h3>
+            </a>
+        </div>
+        <!-- Additional child-appropriate video suggestions -->
+        <div class="suggested-video-card">
+            <a href="/watch?v=JuJQTFQ5rM4">
+                <img src="https://img.youtube.com/vi/JuJQTFQ5rM4/hqdefault.jpg" alt="LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s">
+                <h3>LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=fvS9jzAR3eo">
+                <img src="https://img.youtube.com/vi/fvS9jzAR3eo/hqdefault.jpg" alt="Attack on the Ninja | LEGO NINJAGO® Dragons Rising | Season 2">
+                <h3>Attack on the Ninja | LEGO NINJAGO® Dragons Rising | Season 2</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=GDmNktu_bGE">
+                <img src="https://img.youtube.com/vi/GDmNktu_bGE/hqdefault.jpg" alt="Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial">
+                <h3>Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=MyBb5Dk4lzs">
+                <img src="https://img.youtube.com/vi/MyBb5Dk4lzs/hqdefault.jpg" alt="Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes">
+                <h3>Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=WFbXi8SMgNA">
+                <img src="https://img.youtube.com/vi/WFbXi8SMgNA/hqdefault.jpg" alt="Home - S1 E2 | | LEGO NINJAGO | Full Episodes">
+                <h3>Home - S1 E2 | | LEGO NINJAGO | Full Episodes</h3>
             </a>
         </div>
     </div>
 
     <script>
-        document.getElementById('menu-button').onclick = function() {
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menu-button');
             const menu = document.querySelector('.menu');
-            menu.style.display = menu.style.display === 'none' || !menu.style.display ? 'flex' : 'none';
-        };
+            const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
+            const searchButton = document.getElementById('search-button');
+            const searchBar = document.getElementById('search-bar');
+            const videoContainer = document.getElementById('video-container');
 
-        document.getElementById('toggle-dark-mode').onclick = function() {
-            document.body.classList.toggle('dark-mode');
-            document.querySelectorAll('.menu, .video-card, .suggested-video-card').forEach(el => {
-                el.classList.toggle('dark-mode');
+            menuButton.addEventListener('click', () => {
+                menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
             });
-        };
+
+            toggleDarkModeButton.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                menu.classList.toggle('dark-mode');
+                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+            });
+
+            searchButton.addEventListener('click', () => {
+                searchVideos();
+            });
+
+            searchBar.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    searchVideos();
+                }
+            });
+
+            function searchVideos() {
+                const query = searchBar.value.trim();
+                if (query) {
+                    window.location.href = `/search?query=${encodeURIComponent(query)}`;
+                }
+            }
+        });
     </script>
+    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
 </body>
 </html>
