@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="lsfa-iRxtua-Dlyi4SVbwt5uMorZYYo_E7aNujnpsyg" />
     <title>GammaTube</title>
-    
+
+    <!-- Google site verification meta tag -->
+    <meta name="google-site-verification" content="lsfa-iRxtua-Dlyi4SVbwt5uMorZYYo_E7aNujnpsyg" />
+
     <link rel="icon" type="image/png" sizes="32x32" href="https://titanicsearch.neocities.org/favicon.png">
     
     <style>
@@ -117,7 +119,6 @@
         #search-button:hover {
             background: var(--primary-dark);
         }
-
 
         /* Video container styles */
         #video-container {
@@ -267,81 +268,24 @@
         </div>
         <div class="suggested-video-card">
             <a href="/watch?v=c9tBY6dC7Nw">
-                <img src="https://img.youtube.com/vi/c9tBY6dC7Nw/hqdefault.jpg" alt="NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies">
-                <h3>NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies</h3>
-            </a>
-        </div>
-        <!-- Additional child-appropriate video suggestions -->
-        <div class="suggested-video-card">
-            <a href="/watch?v=JuJQTFQ5rM4">
-                <img src="https://img.youtube.com/vi/JuJQTFQ5rM4/hqdefault.jpg" alt="LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s">
-                <h3>LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=fvS9jzAR3eo">
-                <img src="https://img.youtube.com/vi/fvS9jzAR3eo/hqdefault.jpg" alt="Attack on the Ninja | LEGO NINJAGO® Dragons Rising | Season 2">
-                <h3>Attack on the Ninja | LEGO NINJAGO® Dragons Rising | Season 2</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=GDmNktu_bGE">
-                <img src="https://img.youtube.com/vi/GDmNktu_bGE/hqdefault.jpg" alt="Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial">
-                <h3>Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=MyBb5Dk4lzs">
-                <img src="https://img.youtube.com/vi/MyBb5Dk4lzs/hqdefault.jpg" alt="Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes">
-                <h3>Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=WFbXi8SMgNA">
-                <img src="https://img.youtube.com/vi/WFbXi8SMgNA/hqdefault.jpg" alt="Home - S1 E2 | | LEGO NINJAGO | Full Episodes">
-                <h3>Home - S1 E2 | | LEGO NINJAGO | Full Episodes</h3>
+                <img src="https://img.youtube.com/vi/c9tBY6dC7Nw/hqdefault.jpg" alt="NINJAGO: Zane’s Best Moments | Compilation | LEGO Ninjago: Legacy | Prime Video">
+                <h3>NINJAGO: Zane’s Best Moments | Compilation | LEGO Ninjago: Legacy | Prime Video</h3>
             </a>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const menuButton = document.getElementById('menu-button');
+        document.getElementById('menu-button').onclick = function() {
             const menu = document.querySelector('.menu');
-            const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
-            const searchButton = document.getElementById('search-button');
-            const searchBar = document.getElementById('search-bar');
-            const videoContainer = document.getElementById('video-container');
+            menu.style.display = menu.style.display === 'none' || !menu.style.display ? 'flex' : 'none';
+        };
 
-            menuButton.addEventListener('click', () => {
-                menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+        document.getElementById('toggle-dark-mode').onclick = function() {
+            document.body.classList.toggle('dark-mode');
+            document.querySelectorAll('.menu, .video-card, .suggested-video-card').forEach(el => {
+                el.classList.toggle('dark-mode');
             });
-
-            toggleDarkModeButton.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                menu.classList.toggle('dark-mode');
-                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
-                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
-            });
-
-            searchButton.addEventListener('click', () => {
-                searchVideos();
-            });
-
-            searchBar.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    searchVideos();
-                }
-            });
-
-            function searchVideos() {
-                const query = searchBar.value.trim();
-                if (query) {
-                    window.location.href = `/search?query=${encodeURIComponent(query)}`;
-                }
-            }
-        });
+        };
     </script>
-    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
 </body>
 </html>
