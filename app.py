@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session, send_file, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -336,6 +336,12 @@ def watch_history():
     else:
         return render_template('watch_history.html', error="No watch history found.")
 
+@app.route('/sitemap.xml')
+def sitemap():
+    try:
+        return send_file('sitemap.xml', mimetype='application/xml')
+    except Exception as e:
+        return Response(f"Error serving sitemap: {e}", status=500)
 
 if __name__ == '__main__':
     db.create_all()  # Create database tables
