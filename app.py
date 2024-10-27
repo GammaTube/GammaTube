@@ -201,7 +201,8 @@ def watch():
 
     print(f"Watch route accessed with video_id: {video_id}")
     
-    username = session['username']
+    # Check if user is logged in by verifying 'username' in session
+    username = session.get('username')
     video_name = 'Unknown'
 
     try:
@@ -215,9 +216,11 @@ def watch():
     except Exception as e:
         print(f"Failed to fetch video information for video_id '{video_id}': {e}")
 
-    new_history_entry = WatchHistory(username=username, video_id=video_id, video_name=video_name)
-    db.session.add(new_history_entry)
-    db.session.commit()
+    # Store watch history only if the user is logged in
+    if username:
+        new_history_entry = WatchHistory(username=username, video_id=video_id, video_name=video_name)
+        db.session.add(new_history_entry)
+        db.session.commit()
 
     return render_template('watch.html', video_id=video_id, video_name=video_name)
 
