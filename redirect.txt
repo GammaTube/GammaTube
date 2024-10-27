@@ -1,0 +1,4 @@
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
