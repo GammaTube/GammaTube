@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GammaTube</title>
+    
     <link rel="icon" type="image/png" sizes="32x32" href="https://titanicsearch.neocities.org/favicon.png">
+    
     <style>
         /* General styles */
         body {
@@ -245,23 +247,60 @@
     </div>
 
     <div id="video-container">
-        <!-- Display suggestions if they are available -->
-        {% if suggestions %}
-            <div id="suggested-videos">
-                <h2>Suggested Videos</h2>
-                {% for suggestion in suggestions %}
-                    <div class="suggested-video-card">
-                        <a href="/watch?v={{ suggestion.get('id') }}">
-                            <img src="{{ suggestion.get('thumbnail') }}" alt="{{ suggestion.get('title') }}">
-                            <h3>{{ suggestion.get('title') }}</h3>
-                        </a>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <!-- Default message if there are no suggestions -->
-            <p>No suggestions available at this time.</p>
-        {% endif %}
+        <!-- Video items will be dynamically inserted here -->
+    </div>
+
+    <div id="suggested-videos">
+        <h2>Suggested Videos</h2>
+        <div class="suggested-video-card">
+            <a href="/watch?v=JkCWvSxSRMA">
+                <img src="https://img.youtube.com/vi/JkCWvSxSRMA/hqdefault.jpg" alt="Jay got his revenge">
+                <h3>Jay got his revenge</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=5tmq1e4IJ98">
+                <img src="https://img.youtube.com/vi/5tmq1e4IJ98/hqdefault.jpg" alt="Are You Ready for Part 2? | LEGO NINJAGO® Dragons Rising | Season 2">
+                <h3>Are You Ready for Part 2? | LEGO NINJAGO® Dragons Rising | Season 2</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=c9tBY6dC7Nw">
+                <img src="https://img.youtube.com/vi/c9tBY6dC7Nw/hqdefault.jpg" alt="NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies">
+                <h3>NINJAGO: Zane Sacrifice But It's Animated like LEGO Movies</h3>
+            </a>
+        </div>
+        <!-- Additional child-appropriate video suggestions -->
+        <div class="suggested-video-card">
+            <a href="/watch?v=JuJQTFQ5rM4">
+                <img src="https://img.youtube.com/vi/JuJQTFQ5rM4/hqdefault.jpg" alt="LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s">
+                <h3>LEGO NINJAGO Dragons Rising | Season 2 Trailer 20s</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=fvS9jzAR3eo">
+                <img src="https://img.youtube.com/vi/fvS9jzAR3eo/hqdefault.jpg" alt="Attack on the Ninja | LEGO NINJAGO® Dragons Rising | Season 2">
+                <h3>Attack on the Ninja | LEGO NINJAGO® Dragons Rising | Season 2</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=GDmNktu_bGE">
+                <img src="https://img.youtube.com/vi/GDmNktu_bGE/hqdefault.jpg" alt="Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial">
+                <h3>Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=MyBb5Dk4lzs">
+                <img src="https://img.youtube.com/vi/MyBb5Dk4lzs/hqdefault.jpg" alt="Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes">
+                <h3>Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes</h3>
+            </a>
+        </div>
+        <div class="suggested-video-card">
+            <a href="/watch?v=WFbXi8SMgNA">
+                <img src="https://img.youtube.com/vi/WFbXi8SMgNA/hqdefault.jpg" alt="Home - S1 E2 | | LEGO NINJAGO | Full Episodes">
+                <h3>Home - S1 E2 | | LEGO NINJAGO | Full Episodes</h3>
+            </a>
+        </div>
     </div>
 
     <script>
@@ -302,5 +341,6 @@
             }
         });
     </script>
+    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
 </body>
 </html>
