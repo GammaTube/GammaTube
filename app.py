@@ -286,7 +286,13 @@ def playlist():
 
 @app.route('/watch_history')
 def watch_history():
-    username = session['username']  # Retrieve the username from the session
+    
+    # Check if the user is logged in by checking the session
+    if 'username' not in session:
+        print("User not logged in, redirecting to login page")
+        return redirect(url_for('login'))
+        
+        username = session['username']  # Retrieve the username from the session
     
     # Query the watch history using the username instead of user_id
     history = WatchHistory.query.filter_by(username=username).order_by(WatchHistory.timestamp.desc()).all()
