@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
-from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video, ResultMode
+from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video, ResultMode, Suggestions
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -79,9 +79,37 @@ def send_signup_email(to_email, username):
 
 @app.route('/')
 def index():
-    print("Index route accessed")
-    return render_template('index.html')
+    # Check if the user is logged in by checking the session
+    username = session.get('username')
+    
+    if not username:
+        # If the user is not logged in, render the homepage without suggestions
+        return render_template('index.html', suggestions=None)
 
+    # Retrieve watch history for the logged-in user
+    history = WatchHistory.query.filter(
+        WatchHistory.username == username, 
+        WatchHistory.video_name != "Unknown"  # Exclude "Unknown" video names
+    ).all()
+
+    # Collect unique video names for suggestion purposes
+    video_names = list(set(item.video_name for item in history))
+
+    # Initialize the suggestions object
+    suggestions_obj = Suggestions(language='en', region='US')
+    
+    # Fetch suggestions for each video name
+    suggestions = []
+    for video_name in video_names:
+        try:
+            result = suggestions_obj.get(video_name, mode=ResultMode.json)
+            # Append only relevant data (e.g., title and search suggestion text) to the list
+            suggestions.extend(result.get('result', []))
+        except Exception as e:
+            print(f"Failed to get suggestions for '{video_name}': {e}")
+
+    # Render the index template with the suggestions
+    return render_template('index.html', suggestions=suggestions)
 
 @app.route('/search')
 def search_page():
