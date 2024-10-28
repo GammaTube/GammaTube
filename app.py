@@ -6,6 +6,7 @@ from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, V
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import time
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
@@ -45,15 +46,14 @@ with app.app_context():
 
 
 def send_signup_email(to_email, username):
-    # 
     sender_email = "Gamma.scratch@gmail.com"
     password = "wsnp cgax tjic ecxv"
 
-    # Email content
+    # First email content
     subject = "Account Created for GammaTube"
     message = f"Hello {username}, your account for GammaTube has been created. Login here: https://gammatube.koyeb.app/login"
 
-    # Create the email message
+    # Create the first email message
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = to_email
@@ -71,11 +71,34 @@ def send_signup_email(to_email, username):
         server.login(sender_email, password)
         server.sendmail(sender_email, to_email, msg.as_string())
         server.quit()
-        print("Email sent successfully!")
+        print("First email sent successfully!")
+
+        # Wait for 60 seconds
+        time.sleep(60)
+
+        # Second email content
+        subject_welcome = "Welcome to GammaTube"
+        welcome_message = f"Hello {username}, welcome to GammaTube! We're glad to have you here."
+
+        # Create the second email message
+        welcome_msg = MIMEMultipart()
+        welcome_msg['From'] = sender_email
+        welcome_msg['To'] = to_email
+        welcome_msg['Subject'] = subject_welcome
+        welcome_msg.attach(MIMEText(welcome_message, 'plain'))
+
+        # Send the second email
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.ehlo()
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, to_email, welcome_msg.as_string())
+        server.quit()
+        print("Welcome email sent successfully!")
+
     except Exception as e:
         print(f"Failed to send email: {e}")
         raise
-
 
 @app.route('/')
 def index():
