@@ -325,8 +325,10 @@ def suggestions():
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         video_info = Video.getInfo(video_url, mode=ResultMode.json)
 
-        # Get the title from video information
-        video_title = video_info.get('title', 'No title')
+        # Check if video_info is valid and get the title safely
+        video_title = video_info.get('title') if video_info else 'No title'
+        if video_title is None:
+            video_title = 'No title'
         print(f"Video Title: {video_title}")
 
         # Retrieve suggestions based on the video title
