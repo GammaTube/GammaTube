@@ -48,42 +48,42 @@
 
         .menu {
             position: absolute;
-            top: 50px;
+            top: 50px; /* Adjust as necessary */
             right: 10px;
-            display: none;
-            flex-direction: column;
-            align-items: flex-end;
+            display: flex;                /* Use flexbox layout */
+            flex-direction: column;       /* Stack buttons vertically */
+            align-items: flex-end;        /* Align buttons to the right */
             background-color: var(--card-bg-light);
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             padding: 10px;
         }
-
+        
         .menu.dark-mode {
             background-color: var(--card-bg-dark);
         }
-
+        
         .menu button {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 16px;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            background: none;              /* Transparent background */
+            border: none;                  /* Remove borders */
+            color: var(--text-light);      /* Text color */
+            font-size: 16px;               /* Button font size */
+            padding: 10px;                 /* Padding for buttons */
+            border-radius: 4px;            /* Rounded corners */
+            cursor: pointer;               /* Pointer cursor on hover */
+            transition: background-color 0.3s; /* Smooth background transition */
         }
-
-        .menu button.dark-mode {
-            color: var(--text-dark);
-        }
-
+        
         .menu button:hover {
-            background-color: var(--primary-light);
+            background-color: var(--primary-light); /* Hover effect for buttons */
         }
-
+            
+        .menu button.dark-mode {
+            color: var(--text-dark); /* Change text color for dark mode */
+        }
+        
         .menu button.dark-mode:hover {
-            background-color: var(--primary-dark);
+            background-color: var(--primary-dark); /* Dark mode hover effect */
         }
         /* Search container styles */
         #search-container {
