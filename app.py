@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
-from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video, ResultMode
+from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video, ResultMode, Suggestions
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -311,6 +311,48 @@ def sitemap():
         return send_file('sitemap.xml', mimetype='application/xml')
     except Exception as e:
         return Response(f"Error serving sitemap: {e}", status=500)
+
+@app.route('/api/suggestions', methods=['GET'])
+def suggestions():
+    video_id = request.args.get('video_id', '')
+    print(f"Suggestions search accessed with video_id: {video_id}")
+
+    if not video_id:
+        return jsonify({'error': 'No video ID provided'}), 400
+
+    try:
+        # Fetch video information
+        video_url = f'https://www.youtube.com/watch?v={video_id}'
+        video_info = Video.getInfo(video_url, mode=ResultMode.json)
+
+        # Get the title from video information
+        video_title = video_info.get('title', 'No title')
+        print(f"Video Title: {video_title}")
+
+        # Retrieve suggestions based on the video title
+        suggestions = Suggestions(language='en', region='US')
+        suggestion_results = suggestions.get(video_title, mode=ResultMode.json)
+
+        # Limit to 2 suggestion results
+        limited_suggestions = suggestion_results.get('result', [])[:2]
+        print(f"Suggestions: {limited_suggestions}")
+
+        # Prepare response
+        response = {
+            'video': {
+                'title': video_title,
+                'description': video_info.get('description', 'No description'),
+                'thumbnail': video_info.get('thumbnails', [{}])[0].get('url', 'https://via.placeholder.com/120x90'),
+                'video_id': video_id,
+            },
+            'suggestions': limited_suggestions
+        }
+
+        return jsonify(response)
+
+    except Exception as e:
+        print(f"Error during suggestions search: {e}")
+        return jsonify({'error': 'An error occurred during the suggestions search'}), 500
 
 if __name__ == '__main__':
     db.create_all()  # Create database tables
