@@ -48,42 +48,42 @@
 
         .menu {
             position: absolute;
-            top: 50px; /* Adjust as necessary */
+            top: 50px;
             right: 10px;
-            display: flex;                /* Use flexbox layout */
-            flex-direction: column;       /* Stack buttons vertically */
-            align-items: flex-end;        /* Align buttons to the right */
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
             background-color: var(--card-bg-light);
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             padding: 10px;
         }
-        
+
         .menu.dark-mode {
             background-color: var(--card-bg-dark);
         }
-        
+
         .menu button {
-            background: none;              /* Transparent background */
-            border: none;                  /* Remove borders */
-            color: var(--text-light);      /* Text color */
-            font-size: 16px;               /* Button font size */
-            padding: 10px;                 /* Padding for buttons */
-            border-radius: 4px;            /* Rounded corners */
-            cursor: pointer;               /* Pointer cursor on hover */
-            transition: background-color 0.3s; /* Smooth background transition */
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        
-        .menu button:hover {
-            background-color: var(--primary-light); /* Hover effect for buttons */
-        }
-            
+
         .menu button.dark-mode {
-            color: var(--text-dark); /* Change text color for dark mode */
+            color: var(--text-dark);
         }
-        
+
+        .menu button:hover {
+            background-color: var(--primary-light);
+        }
+
         .menu button.dark-mode:hover {
-            background-color: var(--primary-dark); /* Dark mode hover effect */
+            background-color: var(--primary-dark);
         }
         /* Search container styles */
         #search-container {
@@ -239,9 +239,6 @@
     <div id="menu-button">⋮</div>
     <div class="menu">
         <button id="toggle-dark-mode">Toggle Dark Mode</button>
-        <button onclick="window.location.href='https://gammatube.koyeb.app/login'">Login</button>
-        <button onclick="window.location.href='https://gammatube.koyeb.app/watch_history'">History</button>
-        <button onclick="window.location.href='https://gammatube.koyeb.app/'">Home</button>
     </div>
 
     <div id="search-container">
