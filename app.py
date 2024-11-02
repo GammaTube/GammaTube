@@ -352,7 +352,7 @@ def suggestions():
 
     except Exception as e:
         print(f"Error during suggestions search: {e}")
-        return jsonify({'error': 'An error occurred during the suggestions search'}), 500
+        return jsonify({'error': f'An error occurred during the suggestions search: {str(e)}'}), 500
 
 if __name__ == '__main__':
     db.create_all()  # Create database tables
