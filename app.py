@@ -296,7 +296,8 @@ def watch_history():
     # Check if the user is logged in by checking the session
     if 'username' not in session:
         print("User not logged in, redirecting to login page")
-        return redirect(url_for('login'))
+        # Redirect to login with a 'redirect' parameter to come back to '/watch_history' after login
+        return redirect(url_for('login', redirect=url_for('watch_history')))
 
     username = session['username']  # Retrieve the username from the session
     
