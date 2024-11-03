@@ -258,6 +258,9 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Get the 'redirect' parameter from the URL query string if present
+    redirect_url = request.args.get('redirect', url_for('index'))  # Default to the homepage if not provided
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -270,10 +273,11 @@ def login():
             # Store the username in the session to indicate the user is logged in
             session['username'] = username
             flash('Login successful!', 'success')
-            return redirect(url_for('index'))  # Redirect to the main page or wherever you'd like
+            # Redirect to the specified URL or fallback to the homepage
+            return redirect(redirect_url)
         else:
             flash('Invalid username or password!', 'error')
-            return redirect(url_for('login'))
+            return redirect(url_for('login', redirect=redirect_url))
 
     return render_template('login.html')
 
