@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ playlist.name }} - GammaTube</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://titanicsearch.neocities.org/favicon.png">
+
+    <style>
+        :root {
+            --background-light: #f4f4f4;
+            --background-dark: #181818;
+            --text-light: #000;
+            --text-dark: #fff;
+            --primary-light: #ff4d4d;
+            --primary-dark: #e60000;
+            --card-bg-light: #fff;
+            --card-bg-dark: #222;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body.dark-mode {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        #menu-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-light);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+
+        #menu-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .menu {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            background-color: var(--card-bg-light);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
+
+        .menu.dark-mode {
+            background-color: var(--card-bg-dark);
+        }
+
+        .menu button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu button.dark-mode {
+            color: var(--text-dark);
+        }
+
+        .menu button:hover {
+            background-color: var(--primary-light);
+        }
+
+        .menu button.dark-mode:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #search-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        #search-bar {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #search-button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background: var(--primary-light);
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #search-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .playlist-details {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        .playlist-thumbnail {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .playlist-info {
+            text-align: center;
+        }
+
+        .video-list {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .video-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .video-item img {
+            width: 120px;
+            height: 90px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+
+        .video-item a {
+            text-decoration: none;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-button">⋮</div>
+    <div class="menu">
+        <button id="toggle-dark-mode">Toggle Dark Mode</button>
+        <button onclick="window.location.href='https://gammatube.koyeb.app/login'">Login</button>
+        <button onclick="window.location.href='https://gammatube.koyeb.app/watch_history'">History</button>
+        <button onclick="window.location.href='https://gammatube.koyeb.app/'">Home</button>
+    </div>
+
+    <div id="search-container">
+        <input type="text" id="search-bar" placeholder="Search for videos...">
+        <button id="search-button">Search</button>
+    </div>
+
+    <div class="playlist-details">
+        <img class="playlist-thumbnail" src="{{ playlist_entries[0].thumbnail_url }}" alt="Playlist Thumbnail">
+        <div class="playlist-info">
+            <h2>{{ playlist.name }}</h2>
+            <p>Created by: {{ owner.username }}</p>
+            <p>{{ playlist.description }}</p>
+        </div>
+    </div>
+
+    <div class="video-list">
+        <h3>Videos in Playlist:</h3>
+        {% for video in playlist_entries %}
+            <div class="video-item">
+                <img src="{{ video.thumbnail_url }}" alt="{{ video.video_name }}">
+                <a href="/my_playlist/{{ playlist.id }}/watch/{{ video.video_id }}">{{ video.video_name }}</a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menu-button');
+            const menu = document.querySelector('.menu');
+            const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
+            const searchButton = document.getElementById('search-button');
+            const searchBar = document.getElementById('search-bar');
+
+            menuButton.addEventListener('click', () => {
+                menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
+            });
+
+            toggleDarkModeButton.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                menu.classList.toggle('dark-mode');
+            });
+
+            searchButton.addEventListener('click', () => {
+                searchVideos();
+            });
+
+            searchBar.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    searchVideos();
+                }
+            });
+
+            function searchVideos() {
+                const query = searchBar.value.trim();
+                if (query) {
+                    window.location.href = `/search?query=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+    </script>
+
+    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a></p>
+</body>
+</html>
