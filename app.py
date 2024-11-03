@@ -6,6 +6,8 @@ from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, V
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import random
+import string
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
@@ -387,20 +389,67 @@ def add_video_to_playlist():
 
     return jsonify(success=True, message='Video added to playlist'), 200
 
-app.route('/my_playlist/<playlist_id>')
-def view_playlist(playlist_id):
-    # Fetch the playlist details from the database
-    playlist = Playlist.query.filter_by(id=playlist_id).first()
+@app.route('/my_playlist/<playlist_id>', methods=['GET'])
+def get_playlist(playlist_id):
+    if 'username' not in session:
+        return jsonify(success=False, message='User not logged in'), 403
+
+    playlist = Playlist.query.filter_by(id=playlist_id, owner_username=session['username']).first()
     if not playlist:
-        return "Playlist not found", 404
-    
-    # Fetch entries (videos) in the playlist
-    playlist_entries = PlaylistEntry.query.filter_by(playlist_id=playlist_id).all()
-    
-    # Fetch the owner information
-    owner = User.query.filter_by(username=playlist.owner_username).first()
-    
-    return render_template('view_playlist.html', playlist=playlist, playlist_entries=playlist_entries, owner=owner)
+        return jsonify(success=False, message='Playlist not found or access denied'), 404
+
+    videos = [{
+        'video_id': entry.video_id,
+        'video_thumbnail': entry.video_thumbnail
+    } for entry in playlist.videos]
+
+    return jsonify(success=True, playlist_name=playlist.name, videos=videos), 200
+
+@app.route('/my_playlist/delete_video', methods=['DELETE'])
+def delete_video_from_playlist():
+    if 'username' not in session:
+        return jsonify(success=False, message='User not logged in'), 403
+
+    data = request.get_json()
+    playlist_id = data.get('playlist_id')
+    video_id = data.get('video_id')
+
+    if not playlist_id or not video_id:
+        return jsonify(success=False, message='Playlist ID and video ID are required'), 400
+
+    # Validate playlist ownership
+    playlist = Playlist.query.filter_by(id=playlist_id, owner_username=session['username']).first()
+    if not playlist:
+        return jsonify(success=False, message='Playlist not found or access denied'), 404
+
+    entry = PlaylistEntry.query.filter_by(playlist_id=playlist_id, video_id=video_id).first()
+    if entry:
+        db.session.delete(entry)
+        db.session.commit()
+        return jsonify(success=True, message='Video removed from playlist'), 200
+    else:
+        return jsonify(success=False, message='Video not found in the playlist'), 404
+
+@app.route('/my_playlist/delete', methods=['DELETE'])
+def delete_playlist():
+    if 'username' not in session:
+        return jsonify(success=False, message='User not logged in'), 403
+
+    data = request.get_json()
+    playlist_id = data.get('playlist_id')
+
+    if not playlist_id:
+        return jsonify(success=False, message='Playlist ID is required'), 400
+
+    # Validate playlist ownership
+    playlist = Playlist.query.filter_by(id=playlist_id, owner_username=session['username']).first()
+    if not playlist:
+        return jsonify(success=False, message='Playlist not found or access denied'), 404
+
+    db.session.delete(playlist)
+    db.session.commit()
+
+    return jsonify(success=True, message='Playlist deleted'), 200
 
 if __name__ == '__main__':
     db.create_all()  # Create database tables
