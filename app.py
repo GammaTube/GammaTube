@@ -312,6 +312,13 @@ def sitemap():
     except Exception as e:
         return Response(f"Error serving sitemap: {e}", status=500)
 
+@app.route('/logout')
+def logout():
+    # Remove 'username' from the session to log the user out
+    session.pop('username', None)
+    flash('You have been logged out successfully.', 'success')
+    return redirect(url_for('index'))  # Redirect to the homepage
+
 if __name__ == '__main__':
     db.create_all()  # Create database tables
     app.run(debug=True)
