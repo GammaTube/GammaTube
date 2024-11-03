@@ -6,6 +6,7 @@ from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, V
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from models import Playlist, PlaylistEntry, User  # Ensure models are imported correctly
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
@@ -37,6 +38,20 @@ class WatchHistory(db.Model):
 
     def __repr__(self):
         return f'<WatchHistory username={self.username}, video_id={self.video_id}, video_name={self.video_name}, timestamp={self.timestamp}>'
+
+# Playlist model for the database
+class Playlist(db.Model):
+    id = db.Column(db.String(10), primary_key=True)  # Randomly generated ID
+    name = db.Column(db.String(100), nullable=False)
+    owner_username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
+    videos = db.relationship('PlaylistEntry', backref='playlist', cascade='all, delete-orphan')
+
+# PlaylistEntry model for storing videos in a playlist
+class PlaylistEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    playlist_id = db.Column(db.String(10), db.ForeignKey('playlist.id'), nullable=False)
+    video_id = db.Column(db.String(255), nullable=False)
+    video_thumbnail = db.Column(db.String(255), nullable=False)
 
 
 # Initialize the database (create tables)
@@ -323,6 +338,70 @@ def logout():
     session.pop('username', None)
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('index'))  # Redirect to the homepage
+
+@app.route('/my_playlist/create', methods=['POST'])
+def create_playlist():
+    if 'username' not in session:
+        return jsonify(success=False, message='User not logged in'), 403
+    
+    username = session['username']
+    data = request.get_json()
+    playlist_name = data.get('name')
+
+    if not playlist_name:
+        return jsonify(success=False, message='Playlist name is required'), 400
+
+    # Generate a unique random ID for the playlist
+    while True:
+        random_id = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        if not Playlist.query.get(random_id):
+            break
+
+    new_playlist = Playlist(id=random_id, name=playlist_name, owner_username=username)
+    db.session.add(new_playlist)
+    db.session.commit()
+
+    return jsonify(success=True, message='Playlist created', playlist_id=random_id), 201
+
+@app.route('/my_playlist/add_video', methods=['POST'])
+def add_video_to_playlist():
+    if 'username' not in session:
+        return jsonify(success=False, message='User not logged in'), 403
+
+    data = request.get_json()
+    playlist_id = data.get('playlist_id')
+    video_id = data.get('video_id')
+
+    if not playlist_id or not video_id:
+        return jsonify(success=False, message='Playlist ID and video ID are required'), 400
+
+    # Validate playlist ownership
+    playlist = Playlist.query.filter_by(id=playlist_id, owner_username=session['username']).first()
+    if not playlist:
+        return jsonify(success=False, message='Playlist not found or access denied'), 404
+
+    video_thumbnail = f"https://i.ytimg.com/vi/{video_id}/hq720.jpg"
+
+    new_entry = PlaylistEntry(playlist_id=playlist_id, video_id=video_id, video_thumbnail=video_thumbnail)
+    db.session.add(new_entry)
+    db.session.commit()
+
+    return jsonify(success=True, message='Video added to playlist'), 200
+
+app.route('/my_playlist/<playlist_id>')
+def view_playlist(playlist_id):
+    # Fetch the playlist details from the database
+    playlist = Playlist.query.filter_by(id=playlist_id).first()
+    if not playlist:
+        return "Playlist not found", 404
+    
+    # Fetch entries (videos) in the playlist
+    playlist_entries = PlaylistEntry.query.filter_by(playlist_id=playlist_id).all()
+    
+    # Fetch the owner information
+    owner = User.query.filter_by(username=playlist.owner_username).first()
+    
+    return render_template('view_playlist.html', playlist=playlist, playlist_entries=playlist_entries, owner=owner)
 
 if __name__ == '__main__':
     db.create_all()  # Create database tables
