@@ -6,7 +6,6 @@ from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, V
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from models import Playlist, PlaylistEntry, User  # Ensure models are imported correctly
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
