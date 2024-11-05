@@ -4,11 +4,16 @@ from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
 from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video, ResultMode
 import smtplib
+import io
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
 import string
 import requests
+from PIL import Image
+from io import BytesIO
+from moviepy.editor import VideoFileClip
+import base64
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
@@ -103,24 +108,42 @@ def index():
 @app.route('/search')
 def search_page():
     query = request.args.get('query', '')
-    print(f"Search page accessed with query: {query}")
+    print(f"Search page accessed with query: '{query}'")
 
     def create_thumbnail(video_id):
-        # Logic to generate the thumbnail as base64 encoded string
-        # This might involve downloading the original thumbnail, modifying it,
-        # and then encoding it to base64
-        # Return the base64 string of the thumbnail
-        pass  # Replace with your implementation
+        print(f"Creating thumbnail for video_id: {video_id}")
+        # Example: Download a sample thumbnail image (you would replace this with actual logic)
+        # For this example, let's create a simple placeholder thumbnail
+        try:
+            # Assume we have a video URL or a mechanism to get the video
+            video_url = f"https://www.youtube.com/watch?v={video_id}"
+            # Create a simple image for the thumbnail
+            img = Image.new('RGB', (120, 90), color=(73, 109, 137))  # Placeholder color
+            draw = ImageDraw.Draw(img)
+            draw.text((10, 10), video_id, fill=(255, 255, 255))  # Add video_id text to the thumbnail
+            buffer = BytesIO()
+            img.save(buffer, format="JPEG")
+            buffer.seek(0)
+            thumbnail_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            print(f"Thumbnail created for video_id: {video_id}")
+            return thumbnail_data
+        except Exception as e:
+            print(f"Error creating thumbnail for video_id: {video_id}, Error: {e}")
+            return None  # Return None if thumbnail creation fails
 
     def upload_thumbnail_to_github(video_id):
-        # Implement the logic to upload thumbnail using GitHub token
-        token = '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'
+        token = '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'  # Replace with your actual token
         repo = 'Gamma7113131/Convery.GammaTube'
-        path = f'static/{video_id}.jpg'  # or .png as needed
+        path = f'static/{video_id}.jpg'
         url = f'https://api.github.com/repos/{repo}/contents/{path}'
 
         # Your logic to create the thumbnail (if necessary)
         thumbnail_data = create_thumbnail(video_id)  # This should return the thumbnail data
+        if thumbnail_data is None:
+            print(f"Thumbnail data is None for video_id: {video_id}. Upload aborted.")
+            return False
+
+        print(f"Uploading thumbnail for video_id: {video_id}")
 
         headers = {
             'Authorization': f'token {token}',
@@ -130,22 +153,28 @@ def search_page():
         # Check if the file already exists
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            # File exists, do nothing or update if needed
+            print(f"Thumbnail already exists for video_id: {video_id}. Skipping upload.")
             return False
 
         # Upload the thumbnail
         data = {
             'message': 'Upload thumbnail',
-            'content': thumbnail_data,  # Make sure this is base64 encoded
+            'content': thumbnail_data,  # Base64 encoded image data
             'branch': 'main'  # Specify the branch if necessary
         }
 
         response = requests.put(url, headers=headers, json=data)
-        return response.status_code == 201  # Return True if the upload was successful
+        if response.status_code == 201:
+            print(f"Successfully uploaded thumbnail for video_id: {video_id}")
+            return True  # Return True if the upload was successful
+        else:
+            print(f"Failed to upload thumbnail for video_id: {video_id}. Response: {response.status_code}, {response.text}")
+            return False
 
     if query:
         try:
-            search = VideosSearch(query, limit=20)
+            print(f"Performing search for query: {query}")
+            search = VideosSearch(query, limit=20)  # Assume VideosSearch is defined
             results = search.result()
 
             videos = []
@@ -156,6 +185,7 @@ def search_page():
 
                 # Use the thumbnail from the search result, fallback to placeholder
                 thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
+                print(f"Video title: {title}, ID: {video_id}, Initial thumbnail: {thumbnail}")
 
                 # Construct the GitHub URL for the thumbnail
                 github_thumbnail_url = f"https://raw.githubusercontent.com/Gamma7113131/Convery.GammaTube/main/static/{video_id}.jpg"
@@ -164,10 +194,10 @@ def search_page():
                 # Check if thumbnail exists on GitHub
                 response = requests.head(github_thumbnail_url)
                 if response.status_code == 200:
-                    # Use the GitHub thumbnail if it exists
+                    print(f"Using existing GitHub thumbnail for video_id: {video_id}")
                     thumbnail = github_thumbnail_url
                 else:
-                    # Try to upload to GitHub using your GitHub token
+                    print(f"GitHub thumbnail not found for video_id: {video_id}. Attempting upload.")
                     uploaded = upload_thumbnail_to_github(video_id)
                     if uploaded:
                         thumbnail = github_thumbnail_url  # Use the newly uploaded thumbnail
@@ -175,17 +205,21 @@ def search_page():
                         # Check koyeb thumbnail if GitHub upload fails
                         response = requests.head(koyeb_thumbnail_url)
                         if response.status_code == 200:
+                            print(f"Using Koyeb thumbnail for video_id: {video_id}")
                             thumbnail = koyeb_thumbnail_url
+                        else:
+                            print(f"No thumbnail found for video_id: {video_id} on GitHub or Koyeb. Using placeholder.")
 
                 videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
 
+            print(f"Search completed with {len(videos)} results.")
             return render_template('search.html', videos=videos, query=query)
         except Exception as e:
             print(f"Error during search: {e}")
             return render_template('search.html', error='An error occurred during the search')
     else:
+        print("No query provided, returning error.")
         return render_template('search.html', error='No query provided')
-
 
 @app.route('/api/search')
 def api_search():
