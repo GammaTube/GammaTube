@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
 import string
+import os
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
