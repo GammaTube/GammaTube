@@ -10,10 +10,10 @@ import random
 import string
 
 app = Flask(__name__)
-app.secret_key = 'ilyaas2012'
+app.secret_key = os.getenv('SECRET_KEY')
 
 # Configuration for the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres.bmxyjwxajvbbglhewpqr:gamma-tube-@aws-0-eu-central-1.pooler.supabase.com:6543/postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -63,7 +63,7 @@ with app.app_context():
 def send_signup_email(to_email, username):
     # 
     sender_email = "Gamma.scratch@gmail.com"
-    password = "wsnp cgax tjic ecxv"
+    password = os.getenv('PASSWORD')
 
     # Email content
     subject = "Account Created for GammaTube"
