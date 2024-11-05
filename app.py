@@ -4,17 +4,10 @@ from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
 from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, Video, ResultMode
 import smtplib
-import io
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
 import string
-import requests
-from PIL import Image, ImageDraw, ImageFont
-from io import BytesIO
-from moviepy.editor import VideoFileClip
-import base64
-import subprocess
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
@@ -109,82 +102,27 @@ def index():
 @app.route('/search')
 def search_page():
     query = request.args.get('query', '')
-    print(f"Search page accessed with query: '{query}'")
-
-    def upload_thumbnail_to_github(thumbnail_url, video_id):
-        token = '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'  # Replace with your actual token
-        repo = 'Gamma7113131/Convery.GammaTube'
-        path = f'static/{video_id}.jpg'
-        
-        print(f"Downloading thumbnail from: {thumbnail_url}")
-        try:
-            # Download the thumbnail image
-            response = subprocess.run(['curl', '-s', thumbnail_url], capture_output=True)
-            if response.returncode != 0:
-                print(f"Failed to download thumbnail from {thumbnail_url}. Response code: {response.returncode}")
-                return False
-            
-            thumbnail_data = base64.b64encode(response.stdout).decode('utf-8')  # Convert image to base64 for upload
-            
-            # Prepare the curl command to upload to GitHub
-            curl_command = [
-                'curl',
-                '-X', 'PUT',
-                f'https://api.github.com/repos/{repo}/contents/{path}',
-                '-H', f'Authorization: token {token}',
-                '-H', 'Accept: application/vnd.github.v3+json',
-                '-d', f'{{"message": "Upload thumbnail", "content": "{thumbnail_data}", "committer": {{"name": "Gamma", "email": "gametron2012@yahoo.com"}}, "branch": "main"}}'
-            ]
-
-            print(f"Uploading thumbnail for video_id: {video_id}")
-            upload_response = subprocess.run(curl_command, capture_output=True)
-            if upload_response.returncode == 0:
-                print(f"Successfully uploaded thumbnail for video_id: {video_id}")
-                return True
-            else:
-                print(f"Failed to upload thumbnail for video_id: {video_id}. Response: {upload_response.stderr.decode()}")
-                return False
-        except Exception as e:
-            print(f"Error during upload: {e}")
-            return False
-
+    print(f"Search page accessed with query: {query}")
     if query:
         try:
-            print(f"Performing search for query: {query}")
-            search = VideosSearch(query, limit=20)  # Assume VideosSearch is defined
+            search = VideosSearch(query, limit=20)
             results = search.result()
 
             videos = []
             for item in results['result']:
                 title = item['title']
-                video_id = item['id']
-                video_url = 'https://www.youtube.com/watch?v=' + video_id
-
-                # Get the original thumbnail URL
-                thumbnail_url = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-                print(f"Video title: {title}, ID: {video_id}, Original thumbnail: {thumbnail_url}")
-
-                # Attempt to upload the original thumbnail to GitHub
-                uploaded = upload_thumbnail_to_github(thumbnail_url, video_id)
-
-                if uploaded:
-                    # Construct the GitHub URL for the uploaded thumbnail
-                    github_thumbnail_url = f"https://raw.githubusercontent.com/Gamma7113131/Convery.GammaTube/main/static/{video_id}.jpg"
-                    thumbnail = github_thumbnail_url
-                else:
-                    print(f"Failed to upload thumbnail for video_id: {video_id}. Using original thumbnail instead.")
-                    thumbnail = thumbnail_url  # Fallback to the original thumbnail
+                video_url = 'https://www.youtube.com/watch?v=' + item['id']
+                thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
 
                 videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
 
-            print(f"Search completed with {len(videos)} results.")
             return render_template('search.html', videos=videos, query=query)
         except Exception as e:
             print(f"Error during search: {e}")
             return render_template('search.html', error='An error occurred during the search')
     else:
-        print("No query provided, returning error.")
         return render_template('search.html', error='No query provided')
+
 
 @app.route('/api/search')
 def api_search():
