@@ -110,37 +110,25 @@ def search_page():
     query = request.args.get('query', '')
     print(f"Search page accessed with query: '{query}'")
 
-    def create_thumbnail(video_id):
-        print(f"Creating thumbnail for video_id: {video_id}")
-        try:
-            img = Image.new('RGB', (120, 90), color=(73, 109, 137))  # Placeholder color
-            draw = ImageDraw.Draw(img)
-            draw.text((10, 10), video_id, fill=(255, 255, 255))  # Add video_id text to the thumbnail
-            buffer = BytesIO()
-            img.save(buffer, format="JPEG")
-            buffer.seek(0)
-            thumbnail_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
-            print(f"Thumbnail created for video_id: {video_id}")
-            return thumbnail_data
-        except Exception as e:
-            print(f"Error creating thumbnail for video_id: {video_id}, Error: {e}")
-            return None  # Return None if thumbnail creation fails
-
-    def upload_thumbnail_to_github(video_id):
+    def upload_thumbnail_to_github(thumbnail_url, video_id):
         token = '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'  # Replace with your actual token
         repo = 'Gamma7113131/Convery.GammaTube'
         path = f'static/{video_id}.jpg'
         url = f'https://api.github.com/repos/{repo}/contents/{path}'
 
-        # Create thumbnail if not already created
-        thumbnail_data = create_thumbnail(video_id)
-        if thumbnail_data is None:
-            print(f"Thumbnail data is None for video_id: {video_id}. Upload aborted.")
+        print(f"Downloading thumbnail from: {thumbnail_url}")
+        response = requests.get(thumbnail_url)
+        
+        if response.status_code != 200:
+            print(f"Failed to download thumbnail from {thumbnail_url}. Response: {response.status_code}")
             return False
+
+        thumbnail_data = base64.b64encode(response.content).decode('utf-8')  # Convert image to base64 for upload
 
         print(f"Checking if thumbnail exists for video_id: {video_id}")
         headers = {
             'Authorization': f'token {token}',
+            'Accept': 'application/vnd.github.v3+json',
             'Content-Type': 'application/json'
         }
 
@@ -156,7 +144,11 @@ def search_page():
                 'message': 'Update thumbnail',
                 'content': thumbnail_data,
                 'sha': sha,  # Include SHA for the existing file
-                'branch': 'main'  # Specify the branch if necessary
+                'branch': 'main',  # Specify the branch if necessary
+                'committer': {  # Add committer info
+                    'name': 'Gamma',  # Replace with your name
+                    'email': 'gametron2012@yahoo.com'  # Replace with your email
+                }
             }
 
             response = requests.put(url, headers=headers, json=data)
@@ -166,7 +158,11 @@ def search_page():
             data = {
                 'message': 'Upload thumbnail',
                 'content': thumbnail_data,
-                'branch': 'main'  # Specify the branch if necessary
+                'branch': 'main',  # Specify the branch if necessary
+                'committer': {  # Add committer info
+                    'name': 'Gamma',  # Replace with your name
+                    'email': 'gametron2012@yahoo.com'  # Replace with your email
+                }
             }
 
             response = requests.put(url, headers=headers, json=data)
@@ -190,32 +186,20 @@ def search_page():
                 video_id = item['id']
                 video_url = 'https://www.youtube.com/watch?v=' + video_id
 
-                # Use the thumbnail from the search result, fallback to placeholder
-                thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-                print(f"Video title: {title}, ID: {video_id}, Initial thumbnail: {thumbnail}")
+                # Get the original thumbnail URL
+                thumbnail_url = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
+                print(f"Video title: {title}, ID: {video_id}, Original thumbnail: {thumbnail_url}")
 
-                # Construct the GitHub URL for the thumbnail
-                github_thumbnail_url = f"https://raw.githubusercontent.com/Gamma7113131/Convery.GammaTube/main/static/{video_id}.jpg"
-                koyeb_thumbnail_url = f"https://convey-gammatube.koyeb.app/{video_id}.jpg"
+                # Attempt to upload the original thumbnail to GitHub
+                uploaded = upload_thumbnail_to_github(thumbnail_url, video_id)
 
-                # Check if thumbnail exists on GitHub
-                response = requests.head(github_thumbnail_url)
-                if response.status_code == 200:
-                    print(f"Using existing GitHub thumbnail for video_id: {video_id}")
+                if uploaded:
+                    # Construct the GitHub URL for the uploaded thumbnail
+                    github_thumbnail_url = f"https://raw.githubusercontent.com/Gamma7113131/Convery.GammaTube/main/static/{video_id}.jpg"
                     thumbnail = github_thumbnail_url
                 else:
-                    print(f"GitHub thumbnail not found for video_id: {video_id}. Attempting upload.")
-                    uploaded = upload_thumbnail_to_github(video_id)
-                    if uploaded:
-                        thumbnail = github_thumbnail_url  # Use the newly uploaded thumbnail
-                    else:
-                        # Check Koyeb thumbnail if GitHub upload fails
-                        response = requests.head(koyeb_thumbnail_url)
-                        if response.status_code == 200:
-                            print(f"Using Koyeb thumbnail for video_id: {video_id}")
-                            thumbnail = koyeb_thumbnail_url
-                        else:
-                            print(f"No thumbnail found for video_id: {video_id} on GitHub or Koyeb. Using placeholder.")
+                    print(f"Failed to upload thumbnail for video_id: {video_id}. Using original thumbnail instead.")
+                    thumbnail = thumbnail_url  # Fallback to the original thumbnail
 
                 videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
 
