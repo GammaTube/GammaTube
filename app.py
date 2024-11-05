@@ -14,6 +14,7 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from moviepy.editor import VideoFileClip
 import base64
+import subprocess
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
@@ -114,64 +115,37 @@ def search_page():
         token = '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'  # Replace with your actual token
         repo = 'Gamma7113131/Convery.GammaTube'
         path = f'static/{video_id}.jpg'
-        url = f'https://api.github.com/repos/{repo}/contents/{path}'
-
-        print(f"Downloading thumbnail from: {thumbnail_url}")
-        response = requests.get(thumbnail_url)
         
-        if response.status_code != 200:
-            print(f"Failed to download thumbnail from {thumbnail_url}. Response: {response.status_code}")
-            return False
+        print(f"Downloading thumbnail from: {thumbnail_url}")
+        try:
+            # Download the thumbnail image
+            response = subprocess.run(['curl', '-s', thumbnail_url], capture_output=True)
+            if response.returncode != 0:
+                print(f"Failed to download thumbnail from {thumbnail_url}. Response code: {response.returncode}")
+                return False
+            
+            thumbnail_data = base64.b64encode(response.stdout).decode('utf-8')  # Convert image to base64 for upload
+            
+            # Prepare the curl command to upload to GitHub
+            curl_command = [
+                'curl',
+                '-X', 'PUT',
+                f'https://api.github.com/repos/{repo}/contents/{path}',
+                '-H', f'Authorization: token {token}',
+                '-H', 'Accept: application/vnd.github.v3+json',
+                '-d', f'{{"message": "Upload thumbnail", "content": "{thumbnail_data}", "committer": {{"name": "Gamma", "email": "gametron2012@yahoo.com"}}, "branch": "main"}}'
+            ]
 
-        thumbnail_data = base64.b64encode(response.content).decode('utf-8')  # Convert image to base64 for upload
-
-        print(f"Checking if thumbnail exists for video_id: {video_id}")
-        headers = {
-            'Authorization': f'token {token}',
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-        }
-
-        # Check if the file already exists
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            # File exists, we need to update it
-            existing_file = response.json()
-            sha = existing_file['sha']  # Get the SHA of the existing file for update
-            print(f"Thumbnail already exists for video_id: {video_id}. Updating upload.")
-
-            data = {
-                'message': 'Update thumbnail',
-                'content': thumbnail_data,
-                'sha': sha,  # Include SHA for the existing file
-                'branch': 'main',  # Specify the branch if necessary
-                'committer': {  # Add committer info
-                    'name': 'Gamma',  # Replace with your name
-                    'email': 'gametron2012@yahoo.com'  # Replace with your email
-                }
-            }
-
-            response = requests.put(url, headers=headers, json=data)
-        else:
-            # File does not exist, create a new one
-            print(f"Thumbnail not found for video_id: {video_id}. Attempting upload.")
-            data = {
-                'message': 'Upload thumbnail',
-                'content': thumbnail_data,
-                'branch': 'main',  # Specify the branch if necessary
-                'committer': {  # Add committer info
-                    'name': 'Gamma',  # Replace with your name
-                    'email': 'gametron2012@yahoo.com'  # Replace with your email
-                }
-            }
-
-            response = requests.put(url, headers=headers, json=data)
-
-        if response.status_code in (201, 200):
-            print(f"Successfully uploaded thumbnail for video_id: {video_id}")
-            return True
-        else:
-            print(f"Failed to upload thumbnail for video_id: {video_id}. Response: {response.status_code}, {response.text}")
+            print(f"Uploading thumbnail for video_id: {video_id}")
+            upload_response = subprocess.run(curl_command, capture_output=True)
+            if upload_response.returncode == 0:
+                print(f"Successfully uploaded thumbnail for video_id: {video_id}")
+                return True
+            else:
+                print(f"Failed to upload thumbnail for video_id: {video_id}. Response: {upload_response.stderr.decode()}")
+                return False
+        except Exception as e:
+            print(f"Error during upload: {e}")
             return False
 
     if query:
