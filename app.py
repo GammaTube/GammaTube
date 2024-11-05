@@ -127,7 +127,7 @@ def search_page():
             return None  # Return None if thumbnail creation fails
 
     def upload_thumbnail_to_github(video_id):
-        token = 'your_github_token'  # Replace with your actual token
+        token = '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'  # Replace with your actual token
         repo = 'Gamma7113131/Convery.GammaTube'
         path = f'static/{video_id}.jpg'
         url = f'https://api.github.com/repos/{repo}/contents/{path}'
