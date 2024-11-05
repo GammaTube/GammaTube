@@ -10,7 +10,7 @@ from email.mime.multipart import MIMEMultipart
 import random
 import string
 import requests
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from moviepy.editor import VideoFileClip
 import base64
