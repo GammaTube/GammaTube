@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
 import string
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'ilyaas2012'
@@ -103,6 +104,45 @@ def index():
 def search_page():
     query = request.args.get('query', '')
     print(f"Search page accessed with query: {query}")
+
+    def create_thumbnail(video_id):
+        # Logic to generate the thumbnail as base64 encoded string
+        # This might involve downloading the original thumbnail, modifying it,
+        # and then encoding it to base64
+        # Return the base64 string of the thumbnail
+        pass  # Replace with your implementation
+
+    def upload_thumbnail_to_github(video_id):
+        # Implement the logic to upload thumbnail using GitHub token
+        token = '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'
+        repo = 'Gamma7113131/Convery.GammaTube'
+        path = f'static/{video_id}.jpg'  # or .png as needed
+        url = f'https://api.github.com/repos/{repo}/contents/{path}'
+
+        # Your logic to create the thumbnail (if necessary)
+        thumbnail_data = create_thumbnail(video_id)  # This should return the thumbnail data
+
+        headers = {
+            'Authorization': f'token {token}',
+            'Content-Type': 'application/json'
+        }
+
+        # Check if the file already exists
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            # File exists, do nothing or update if needed
+            return False
+
+        # Upload the thumbnail
+        data = {
+            'message': 'Upload thumbnail',
+            'content': thumbnail_data,  # Make sure this is base64 encoded
+            'branch': 'main'  # Specify the branch if necessary
+        }
+
+        response = requests.put(url, headers=headers, json=data)
+        return response.status_code == 201  # Return True if the upload was successful
+
     if query:
         try:
             search = VideosSearch(query, limit=20)
@@ -111,8 +151,31 @@ def search_page():
             videos = []
             for item in results['result']:
                 title = item['title']
-                video_url = 'https://www.youtube.com/watch?v=' + item['id']
+                video_id = item['id']
+                video_url = 'https://www.youtube.com/watch?v=' + video_id
+
+                # Use the thumbnail from the search result, fallback to placeholder
                 thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
+
+                # Construct the GitHub URL for the thumbnail
+                github_thumbnail_url = f"https://raw.githubusercontent.com/Gamma7113131/Convery.GammaTube/main/static/{video_id}.jpg"
+                koyeb_thumbnail_url = f"https://convey-gammatube.koyeb.app/{video_id}.jpg"
+
+                # Check if thumbnail exists on GitHub
+                response = requests.head(github_thumbnail_url)
+                if response.status_code == 200:
+                    # Use the GitHub thumbnail if it exists
+                    thumbnail = github_thumbnail_url
+                else:
+                    # Try to upload to GitHub using your GitHub token
+                    uploaded = upload_thumbnail_to_github(video_id)
+                    if uploaded:
+                        thumbnail = github_thumbnail_url  # Use the newly uploaded thumbnail
+                    else:
+                        # Check koyeb thumbnail if GitHub upload fails
+                        response = requests.head(koyeb_thumbnail_url)
+                        if response.status_code == 200:
+                            thumbnail = koyeb_thumbnail_url
 
                 videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
 
