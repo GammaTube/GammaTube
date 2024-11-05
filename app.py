@@ -112,12 +112,7 @@ def search_page():
 
     def create_thumbnail(video_id):
         print(f"Creating thumbnail for video_id: {video_id}")
-        # Example: Download a sample thumbnail image (you would replace this with actual logic)
-        # For this example, let's create a simple placeholder thumbnail
         try:
-            # Assume we have a video URL or a mechanism to get the video
-            video_url = f"https://www.youtube.com/watch?v={video_id}"
-            # Create a simple image for the thumbnail
             img = Image.new('RGB', (120, 90), color=(73, 109, 137))  # Placeholder color
             draw = ImageDraw.Draw(img)
             draw.text((10, 10), video_id, fill=(255, 255, 255))  # Add video_id text to the thumbnail
@@ -132,19 +127,18 @@ def search_page():
             return None  # Return None if thumbnail creation fails
 
     def upload_thumbnail_to_github(video_id):
-        token = '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'  # Replace with your actual token
+        token = 'your_github_token'  # Replace with your actual token
         repo = 'Gamma7113131/Convery.GammaTube'
         path = f'static/{video_id}.jpg'
         url = f'https://api.github.com/repos/{repo}/contents/{path}'
 
-        # Your logic to create the thumbnail (if necessary)
-        thumbnail_data = create_thumbnail(video_id)  # This should return the thumbnail data
+        # Create thumbnail if not already created
+        thumbnail_data = create_thumbnail(video_id)
         if thumbnail_data is None:
             print(f"Thumbnail data is None for video_id: {video_id}. Upload aborted.")
             return False
 
-        print(f"Uploading thumbnail for video_id: {video_id}")
-
+        print(f"Checking if thumbnail exists for video_id: {video_id}")
         headers = {
             'Authorization': f'token {token}',
             'Content-Type': 'application/json'
@@ -153,20 +147,33 @@ def search_page():
         # Check if the file already exists
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            print(f"Thumbnail already exists for video_id: {video_id}. Skipping upload.")
-            return False
+            # File exists, we need to update it
+            existing_file = response.json()
+            sha = existing_file['sha']  # Get the SHA of the existing file for update
+            print(f"Thumbnail already exists for video_id: {video_id}. Updating upload.")
 
-        # Upload the thumbnail
-        data = {
-            'message': 'Upload thumbnail',
-            'content': thumbnail_data,  # Base64 encoded image data
-            'branch': 'main'  # Specify the branch if necessary
-        }
+            data = {
+                'message': 'Update thumbnail',
+                'content': thumbnail_data,
+                'sha': sha,  # Include SHA for the existing file
+                'branch': 'main'  # Specify the branch if necessary
+            }
 
-        response = requests.put(url, headers=headers, json=data)
-        if response.status_code == 201:
+            response = requests.put(url, headers=headers, json=data)
+        else:
+            # File does not exist, create a new one
+            print(f"Thumbnail not found for video_id: {video_id}. Attempting upload.")
+            data = {
+                'message': 'Upload thumbnail',
+                'content': thumbnail_data,
+                'branch': 'main'  # Specify the branch if necessary
+            }
+
+            response = requests.put(url, headers=headers, json=data)
+
+        if response.status_code in (201, 200):
             print(f"Successfully uploaded thumbnail for video_id: {video_id}")
-            return True  # Return True if the upload was successful
+            return True
         else:
             print(f"Failed to upload thumbnail for video_id: {video_id}. Response: {response.status_code}, {response.text}")
             return False
@@ -202,7 +209,7 @@ def search_page():
                     if uploaded:
                         thumbnail = github_thumbnail_url  # Use the newly uploaded thumbnail
                     else:
-                        # Check koyeb thumbnail if GitHub upload fails
+                        # Check Koyeb thumbnail if GitHub upload fails
                         response = requests.head(koyeb_thumbnail_url)
                         if response.status_code == 200:
                             print(f"Using Koyeb thumbnail for video_id: {video_id}")
