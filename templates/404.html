@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | GammaTube</title>
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="https://convey-gammatube.koyeb.app/favicon.png">
+
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--button-bg-light);
+            font-size: 1.2rem;
+        }
+
+        a:hover {
+            color: var(--button-bg-hover-light);
+        }
+
+        /* Button styles */
+        #home-button {
+            padding: 12px 24px;
+            background: var(--primary-light);
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #home-button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* CSS variables for light and dark mode */
+        :root {
+            --bg-light: #ffffff;
+            --bg-dark: #121212;
+            --text-light: #000000;
+            --text-dark: #ffffff;
+            --primary-light: #007bff;
+            --primary-dark: #0056b3;
+            --button-bg-light: #007bff;
+            --button-bg-hover-light: #0056b3;
+        }
+
+        .dark-mode {
+            --bg-light: #121212;
+            --text-light: #ffffff;
+            --button-bg-light: #1e90ff;
+            --button-bg-hover-light: #1c86ee;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>404 - Page Not Found</h1>
+        <p>Oops! The page you're looking for doesn't exist.</p>
+        <button id="home-button" onclick="window.location.href='https://gammatube.koyeb.app/'">Go to Home</button>
+    </div>
+
+    <script>
+        // Dark Mode Toggle
+        const homeButton = document.getElementById('home-button');
+        homeButton.addEventListener('click', () => {
+            // Navigate to home when button is clicked
+            window.location.href = 'https://gammatube.koyeb.app/';
+        });
+
+        // Toggle dark mode based on user preference or system settings
+        const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+</body>
+</html>
