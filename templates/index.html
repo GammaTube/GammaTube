@@ -256,7 +256,6 @@
     <a href="/" id="logo">
             <img src="https://convey-gammatube.koyeb.app/gammatube-logo.png" alt="GammaTube Logo" id="logo-image">
         </a>
-        <div id="menu-button">⋮</div>
     </div>
     <div id="menu-button">⋮</div>
     <div class="menu">
@@ -341,21 +340,18 @@
                 menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
             });
 
-            toggleDarkModeButton.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                menu.classList.toggle('dark-mode');
-                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
-                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
-            });
-            
-const logoImage = document.getElementById('logo-image');
+toggleDarkModeButton.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    menu.classList.toggle('dark-mode');
+    document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
 
-// Set initial logo based on the body's class
-if (document.body.classList.contains('dark-mode')) {
-    logoImage.src = 'https://convey-gammatube.koyeb.app/gammatube-logo.png'; // Light logo in dark mode
-} else {
-    logoImage.src = 'https://convey-gammatube.koyeb.app/gammatube-logo-dark.png'; // Dark logo in light mode
-}
+    // Update logo based on dark mode
+    logoImage.src = document.body.classList.contains('dark-mode') ?
+        'https://convey-gammatube.koyeb.app/gammatube-logo-dark.png' :
+        'https://convey-gammatube.koyeb.app/gammatube-logo.png';
+});
+        
             searchButton.addEventListener('click', () => {
                 searchVideos();
             });
