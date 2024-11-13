@@ -452,6 +452,13 @@ def delete_playlist():
 
     return jsonify(success=True, message='Playlist deleted'), 200
 
+@app.route('/62fc699e34ef49ef9a7d5b94a1f7bea3.txt')
+def indexnow_verification():
+    # Read the content of the file and return it in the response
+    with open("62fc699e34ef49ef9a7d5b94a1f7bea3.txt", "r") as file:
+        content = file.read()
+    return Response(content, mimetype="text/plain")
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
