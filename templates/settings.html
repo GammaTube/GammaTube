@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - GammaTube</title>
+    
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #ffffff;
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: width 0.3s;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #sidebar.hidden {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #sidebar h2 {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .sidebar-item {
+            color: #ccc;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-item:hover {
+            background-color: #444;
+        }
+
+        /* Main Content Styles */
+        #main-content {
+            flex: 1;
+            padding: 40px;
+            transition: padding-left 0.3s;
+        }
+
+        #main-content.hidden {
+            padding-left: 10px;
+        }
+
+        /* Header and Button Styles */
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #toggle-button {
+            font-size: 16px;
+            padding: 8px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        #toggle-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Section Styling */
+        .setting-section {
+            display: none;
+        }
+
+        .setting-section.active {
+            display: block;
+        }
+
+        /* Setting Item Styles */
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        /* Save Button */
+        #save-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            background-color: #007bff;
+            color: #ffffff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #save-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <button id="toggle-button">Toggle Sidebar</button>
+        <div class="sidebar-item" onclick="showSection('account')">Account Settings</div>
+        <div class="sidebar-item" onclick="showSection('password')">Password</div>
+        <div class="sidebar-item" onclick="showSection('privacy')">Privacy</div>
+        <div class="sidebar-item" onclick="showSection('notifications')">Notifications</div>
+        <div class="sidebar-item" onclick="showSection('playback')">Playback</div>
+        <div class="sidebar-item" onclick="showSection('language')">Language</div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div id="header">
+            <h1>Settings</h1>
+        </div>
+
+        <!-- Account Settings Section -->
+        <div id="account" class="setting-section active">
+            <h2>Account Information</h2>
+            <div class="setting-item">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Your username">
+            </div>
+            <div class="setting-item">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Your email">
+            </div>
+        </div>
+
+        <!-- Password Section -->
+        <div id="password" class="setting-section">
+            <h2>Change Password</h2>
+            <div class="setting-item">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" placeholder="Current password">
+            </div>
+            <div class="setting-item">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" placeholder="New password">
+            </div>
+            <div class="setting-item">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" placeholder="Confirm new password">
+            </div>
+        </div>
+
+        <!-- Privacy Settings Section -->
+        <div id="privacy" class="setting-section">
+            <h2>Privacy Settings</h2>
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" id="incognito-mode"> Enable Incognito Mode
+                </label>
+            </div>
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" id="private-account"> Make Account Private
+                </label>
+            </div>
+        </div>
+
+        <!-- Notification Settings Section -->
+        <div id="notifications" class="setting-section">
+            <h2>Notification Settings</h2>
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" id="email-notifications"> Email Notifications
+                </label>
+            </div>
+        </div>
+
+        <!-- Playback Settings Section -->
+        <div id="playback" class="setting-section">
+            <h2>Playback Settings</h2>
+            <div class="setting-item">
+                <label for="playback-quality">Default Playback Quality</label>
+                <select id="playback-quality">
+                    <option value="auto">Auto</option>
+                    <option value="144p">144p</option>
+                    <option value="360p">360p</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Language Settings Section -->
+        <div id="language" class="setting-section">
+            <h2>Language</h2>
+            <div class="setting-item">
+                <label for="language-select">Choose Language</label>
+                <select id="language-select">
+                    <option value="en">English</option>
+                    <option value="ar">Arabic</option>
+                    <option value="zh">Chinese</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <button id="save-button">Save Settings</button>
+    </div>
+
+    <script>
+        // Show/Hide Sidebar
+        document.getElementById('toggle-button').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('hidden');
+            mainContent.classList.toggle('hidden');
+        });
+
+        // Show Specific Section
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.setting-section');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Language Change (Simulated)
+        document.getElementById('language-select').addEventListener('change', function() {
+            const language = this.value;
+            alert('Language set to ' + (language === 'en' ? 'English' : language === 'ar' ? 'Arabic' : 'Chinese'));
+        });
+    </script>
+</body>
+</html>
