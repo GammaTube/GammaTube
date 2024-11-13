@@ -473,6 +473,10 @@ def indexnow_verification():
         content = file.read()
     return Response(content, mimetype="text/plain")
 
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
