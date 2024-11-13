@@ -96,18 +96,28 @@ def send_signup_email(to_email, username):
         raise
         
 def get_youtube_title(video_id):
+    # Construct the YouTube video URL
     url = f"https://www.youtube.com/watch?v={video_id}"
     try:
+        # Send an HTTP GET request to the video page
         response = requests.get(url)
+        # Check if the request was successful
         if response.status_code != 200:
+            print("Error: Unable to access video page")
             return None
 
+        # Parse the HTML content
         soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # YouTube stores the title in the <title> tag with " - YouTube" appended
         title_tag = soup.find("title")
         if title_tag:
-            return title_tag.text.replace(" - YouTube", "")
+            title = title_tag.text.replace(" - YouTube", "")
+            print(f"Video accessed with Title: {title}")
+            return title
+        
     except Exception as e:
-        print(f"Error fetching video title: {e}")
+        print(f"An error occurred: {e}")
     return None
 
 @app.route('/')
