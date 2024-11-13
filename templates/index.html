@@ -25,21 +25,6 @@
         }
 
         /* Header and menu styles */
-            #header {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background-color: var(--bg-light);
-        }
-            #logo {
-            display: inline-block;
-            margin-right: 20px;
-        }
-
-        #logo img {
-            height: 40px;
-            transition: filter 0.3s;
-        }
         #menu-button {
             position: absolute;
             top: 10px;
@@ -252,11 +237,6 @@
     </style>
 </head>
 <body>
-    <div id="header">
-    <a href="/" id="logo">
-            <img src="https://convey-gammatube.koyeb.app/gammatube-logo.png" alt="GammaTube Logo" id="logo-image">
-        </a>
-    </div>
     <div id="menu-button">⋮</div>
     <div class="menu">
         <button id="toggle-dark-mode">Toggle Dark Mode</button>
@@ -340,18 +320,13 @@
                 menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
             });
 
-toggleDarkModeButton.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    menu.classList.toggle('dark-mode');
-    document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
-    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+            toggleDarkModeButton.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                menu.classList.toggle('dark-mode');
+                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+            });
 
-    // Update logo based on dark mode
-    logoImage.src = document.body.classList.contains('dark-mode') ?
-        'https://convey-gammatube.koyeb.app/gammatube-logo-dark.png' :
-        'https://convey-gammatube.koyeb.app/gammatube-logo.png';
-});
-        
             searchButton.addEventListener('click', () => {
                 searchVideos();
             });
