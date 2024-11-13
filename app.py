@@ -9,6 +9,8 @@ from email.mime.multipart import MIMEMultipart
 import random
 import string
 import os
+import requests
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -92,7 +94,21 @@ def send_signup_email(to_email, username):
     except Exception as e:
         print(f"Failed to send email: {e}")
         raise
+        
+def get_youtube_title(video_id):
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    try:
+        response = requests.get(url)
+        if response.status_code != 200:
+            return None
 
+        soup = BeautifulSoup(response.text, 'html.parser')
+        title_tag = soup.find("title")
+        if title_tag:
+            return title_tag.text.replace(" - YouTube", "")
+    except Exception as e:
+        print(f"Error fetching video title: {e}")
+    return None
 
 @app.route('/')
 def index():
@@ -218,20 +234,8 @@ def watch():
 
     print(f"Watch route accessed with video_id: {video_id}")
     
-    # Check if user is logged in by verifying 'username' in session
     username = session.get('username')
-    video_name = 'Unknown'
-
-    try:
-        video_url = f'https://www.youtube.com/watch?v={video_id}'
-        videoInfo = Video.getInfo(video_url, mode=ResultMode.json)
-
-        # Debug: Print the entire videoInfo response
-        print(f"Video Info Retrieved: {videoInfo}")
-
-        video_name = videoInfo.get('title') or 'Unknown Title'  # Handle NoneType
-    except Exception as e:
-        print(f"Failed to fetch video information for video_id '{video_id}': {e}")
+    video_name = get_youtube_title(video_id) or 'Unknown Title'  # Use the new function here
 
     # Store watch history only if the user is logged in
     if username:
