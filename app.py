@@ -557,6 +557,22 @@ def api_settings():
     else:
         return jsonify({'dark_mode': False, 'email_notifications': True, 'default_language': 'en'})
 
+@app.route('/fetch_language', methods=['GET'])
+def fetch_language():
+    # Check if the user is logged in
+    if 'username' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    username = session['username']
+    user_settings = UserSettings.query.filter_by(username=username).first()
+
+    # If user settings don't exist, return a default value
+    if user_settings:
+        return jsonify({'default_language': user_settings.default_language})
+    else:
+        # Default to 'en' if no settings are found
+        return jsonify({'default_language': 'en'})
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
