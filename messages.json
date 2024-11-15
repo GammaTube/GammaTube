@@ -1,0 +1,44 @@
+{
+  "random_messages": [
+    {
+      "subject": "A New Video You Might Like!",
+      "body": "Hey {username},\n\nWe've got a fresh video for you to check out! Take a break and enjoy something new.\n\nHappy watching,\nThe GammaTube Team"
+    },
+    {
+      "subject": "Your Next Favorite Video is Waiting",
+      "body": "Hi {username},\n\nWe think you'll really enjoy this new video we've added. Give it a watch and let us know what you think!\n\nCheers,\nThe GammaTube Team"
+    },
+    {
+      "subject": "A Little Something for You",
+      "body": "Hey {username},\n\nHere's a video we thought you'd enjoy. It’s got some fun moments, so take a few minutes to watch!\n\nBest wishes,\nThe GammaTube Team"
+    },
+    {
+      "subject": "Take a Look at This!",
+      "body": "Hello {username},\n\nWe’ve found something that we think you'll love! Go ahead and check it out when you get a chance.\n\nEnjoy your time on GammaTube,\nThe GammaTube Team"
+    },
+    {
+      "subject": "A Fresh Video Just for You",
+      "body": "Hey {username},\n\nWe’ve got something new up on GammaTube. Take a moment to unwind with this video, we think you’ll enjoy it!\n\nTake care,\nThe GammaTube Team"
+    },
+    {
+      "subject": "A Quick Break with a Fun Video",
+      "body": "Hi {username},\n\nLooking for something fun to watch? We’ve got just the video for you. Check it out and enjoy your break!\n\nBest regards,\nThe GammaTube Team"
+    },
+    {
+      "subject": "We’ve Got Something Special for You",
+      "body": "Hello {username},\n\nWe just uploaded a video we think you’ll really enjoy. Give it a watch and let us know your thoughts!\n\nHave fun,\nThe GammaTube Team"
+    },
+    {
+      "subject": "New Video Alert!",
+      "body": "Hey {username},\n\nCheck out the latest video we’ve posted. It’s got some great content that we think you'll find interesting!\n\nTake care,\nThe GammaTube Team"
+    },
+    {
+      "subject": "A Fun Video to Brighten Your Day",
+      "body": "Hi {username},\n\nHere’s a lighthearted video to make your day a bit brighter. Hope you enjoy it as much as we do!\n\nCheers,\nThe GammaTube Team"
+    },
+    {
+      "subject": "Something New for You to Enjoy",
+      "body": "Hey {username},\n\nWe’ve just posted a new video that we think you’ll love! Go ahead and check it out when you have a moment.\n\nBest wishes,\nThe GammaTube Team"
+    }
+  ]
+}
