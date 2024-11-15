@@ -57,6 +57,16 @@ class PlaylistEntry(db.Model):
     video_id = db.Column(db.String(255), nullable=False)
     video_thumbnail = db.Column(db.String(255), nullable=False)
 
+# Settings model for the database
+class UserSettings(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False, unique=True)
+    dark_mode = db.Column(db.Boolean, default=False)  # Example setting: Dark mode preference
+    email_notifications = db.Column(db.Boolean, default=True)  # Example setting: Email notifications
+    default_language = db.Column(db.String(10), default='en')  # Example setting: Default language
+
+    def __repr__(self):
+        return f'<UserSettings username={self.username}, dark_mode={self.dark_mode}, email_notifications={self.email_notifications}, default_language={self.default_language}>'
 
 # Initialize the database (create tables)
 with app.app_context():
@@ -473,9 +483,79 @@ def indexnow_verification():
         content = file.read()
     return Response(content, mimetype="text/plain")
 
-@app.route("/settings")
-def settings():
-    return render_template("settings.html")
+@app.route('/settings', methods=['GET', 'POST'])
+def user_settings():
+    # Check if the user is logged in
+    if 'username' not in session:
+        flash('You need to log in to access settings.', 'error')
+        return redirect(url_for('login', redirect=url_for('user_settings')))
+
+    username = session['username']
+
+    # Retrieve the user's settings from the database
+    user_settings = UserSettings.query.filter_by(username=username).first()
+
+    if request.method == 'POST':
+        # Parse the form data
+        dark_mode = request.form.get('dark_mode') == 'on'
+        email_notifications = request.form.get('email_notifications') == 'on'
+        default_language = request.form.get('default_language', 'en')
+
+        if not user_settings:
+            # Create a new settings record if none exists
+            user_settings = UserSettings(username=username, dark_mode=dark_mode, email_notifications=email_notifications, default_language=default_language)
+            db.session.add(user_settings)
+        else:
+            # Update the existing settings record
+            user_settings.dark_mode = dark_mode
+            user_settings.email_notifications = email_notifications
+            user_settings.default_language = default_language
+
+        db.session.commit()
+        flash('Settings updated successfully!', 'success')
+        return redirect(url_for('user_settings'))
+
+    # Render the settings page with the current settings
+    return render_template('settings.html', settings=user_settings)
+
+@app.route('/api/settings', methods=['GET', 'POST'])
+def api_settings():
+    # Check if the user is logged in
+    if 'username' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    username = session['username']
+    user_settings = UserSettings.query.filter_by(username=username).first()
+
+    if request.method == 'POST':
+        data = request.get_json()
+
+        dark_mode = data.get('dark_mode', False)
+        email_notifications = data.get('email_notifications', True)
+        default_language = data.get('default_language', 'en')
+
+        if not user_settings:
+            # Create new settings if they don't exist
+            user_settings = UserSettings(username=username, dark_mode=dark_mode, email_notifications=email_notifications, default_language=default_language)
+            db.session.add(user_settings)
+        else:
+            # Update existing settings
+            user_settings.dark_mode = dark_mode
+            user_settings.email_notifications = email_notifications
+            user_settings.default_language = default_language
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Settings updated successfully'})
+
+    # If it's a GET request, return the user's settings
+    if user_settings:
+        return jsonify({
+            'dark_mode': user_settings.dark_mode,
+            'email_notifications': user_settings.email_notifications,
+            'default_language': user_settings.default_language,
+        })
+    else:
+        return jsonify({'dark_mode': False, 'email_notifications': True, 'default_language': 'en'})
 
 @app.errorhandler(404)
 def page_not_found(e):
