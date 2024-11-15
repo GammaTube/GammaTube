@@ -321,26 +321,72 @@
         <button id="save-button">Save Settings</button>
     </div>
 
-    <script>
-        // Show/Hide Sidebar
-        document.getElementById('toggle-button').addEventListener('click', () => {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            sidebar.classList.toggle('hidden');
-            mainContent.classList.toggle('hidden');
-        });
+<script>
+    // Show/Hide Sidebar
+    document.getElementById('toggle-button').addEventListener('click', () => {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        sidebar.classList.toggle('hidden');
+        mainContent.classList.toggle('hidden');
+    });
 
-        // Show Specific Section
-        function showSection(sectionId) {
-            const sections = document.querySelectorAll('.setting-section');
-            sections.forEach(section => section.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-        }
+    // Show Specific Section
+    function showSection(sectionId) {
+        const sections = document.querySelectorAll('.setting-section');
+        sections.forEach(section => section.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+    }
 
-        // Language Change (Simulated)
-        document.getElementById('language-select').addEventListener('change', function() {
-            const language = this.value;
-        });
-    </script>
+    // Fetch and Pre-fill Current Settings
+    function fetchSettings() {
+        fetch('/api/settings')
+            .then(response => response.json())
+            .then(data => {
+                if (data.dark_mode !== undefined) {
+                    document.getElementById('incognito-mode').checked = data.dark_mode;
+                }
+                if (data.email_notifications !== undefined) {
+                    document.getElementById('email-notifications').checked = data.email_notifications;
+                }
+                if (data.default_language) {
+                    document.getElementById('language-select').value = data.default_language;
+                }
+            })
+            .catch(error => console.error('Error fetching settings:', error));
+    }
+
+    // Save Settings
+    document.getElementById('save-button').addEventListener('click', function() {
+        const darkMode = document.getElementById('incognito-mode').checked;
+        const emailNotifications = document.getElementById('email-notifications').checked;
+        const defaultLanguage = document.getElementById('language-select').value;
+
+        const settingsData = {
+            dark_mode: darkMode,
+            email_notifications: emailNotifications,
+            default_language: defaultLanguage
+        };
+
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(settingsData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Settings updated successfully!');
+            } else {
+                alert('Failed to update settings');
+            }
+        })
+        .catch(error => console.error('Error saving settings:', error));
+    });
+
+    // Initialize the settings page by fetching the user's settings
+    window.onload = fetchSettings;
+</script>
 </body>
 </html>
