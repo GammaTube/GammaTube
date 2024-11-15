@@ -6,6 +6,7 @@ from youtubesearchpython import VideosSearch, ChannelsSearch, PlaylistsSearch, V
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from flask_login import login_required
 import random
 import string
 import os
