@@ -583,14 +583,18 @@ def fetch_language():
         return jsonify({'default_language': 'en'})
         
 @app.route('/subscribe', methods=['POST'])
-@login_required  # Ensures the user must be logged in
 def subscribe():
-    username = current_user.username  # Get the logged-in user's username
+    # Check if the user is logged in
+    if 'username' not in session:
+        flash("You need to be logged in to subscribe!", "error")
+        return redirect(url_for('login'))  # Redirect to login if user is not logged in
+
+    username = session['username']  # Get the username from the session
     email = request.form.get('email')  # Get the email from the form
 
     if not email:
         flash("Email is required!", "error")
-        return redirect(url_for('subscribe_page'))  # Redirect to a subscription page
+        return redirect(url_for('subscribe_page'))  # Redirect to the subscription page
 
     # Check if the email already exists in the subscription list
     existing_subscription = Subscription.query.filter_by(email=email).first()
