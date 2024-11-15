@@ -68,6 +68,15 @@ class UserSettings(db.Model):
     def __repr__(self):
         return f'<UserSettings username={self.username}, dark_mode={self.dark_mode}, email_notifications={self.email_notifications}, default_language={self.default_language}>'
 
+# Subscription model
+class Subscription(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __repr__(self):
+        return f"<Subscription {self.username}, {self.email}>"
+
 # Initialize the database (create tables)
 with app.app_context():
     db.create_all()
@@ -572,6 +581,35 @@ def fetch_language():
     else:
         # Default to 'en' if no settings are found
         return jsonify({'default_language': 'en'})
+        
+@app.route('/subscribe', methods=['POST'])
+@login_required  # Ensures the user must be logged in
+def subscribe():
+    username = current_user.username  # Get the logged-in user's username
+    email = request.form.get('email')  # Get the email from the form
+
+    if not email:
+        flash("Email is required!", "error")
+        return redirect(url_for('subscribe_page'))  # Redirect to a subscription page
+
+    # Check if the email already exists in the subscription list
+    existing_subscription = Subscription.query.filter_by(email=email).first()
+    if existing_subscription:
+        flash("You are already subscribed with this email.", "info")
+        return redirect(url_for('subscribe_page'))
+
+    # Create and add the new subscription
+    new_subscription = Subscription(username=username, email=email)
+    db.session.add(new_subscription)
+    db.session.commit()
+
+    flash("Successfully subscribed!", "success")
+    return redirect(url_for('subscribe_page'))
+
+@app.route('/subscribe', methods=['GET'])
+@login_required
+def subscribe_page():
+    return render_template('subscribe.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
