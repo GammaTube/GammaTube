@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="0724B2D1C64ACB1CE20F09300D47EAFF" />
+    <title>Subscribe - GammaTube</title>
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="https://convey-gammatube.koyeb.app/favicon.png">
+
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Header and menu styles */
+        #menu-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-light);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+
+        #menu-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .menu {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            background-color: var(--card-bg-light);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
+
+        .menu.dark-mode {
+            background-color: var(--card-bg-dark);
+        }
+
+        .menu button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu button.dark-mode {
+            color: var(--text-dark);
+        }
+
+        .menu button:hover {
+            background-color: var(--primary-light);
+        }
+
+        .menu button.dark-mode:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Form styles */
+        .form-container {
+            padding: 40px;
+            max-width: 600px;
+            margin: auto;
+            background-color: var(--card-bg-light);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-light);
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .form-container button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Dark Mode */
+        :root {
+            --bg-light: #ffffff;
+            --bg-dark: #121212;
+            --text-light: #000000;
+            --text-dark: #ffffff;
+            --card-bg-light: #f9f9f9;
+            --card-bg-dark: #333333;
+            --primary-light: #1e90ff;
+            --primary-dark: #1c86ee;
+        }
+
+        .dark-mode {
+            --bg-light: #121212;
+            --text-light: #ffffff;
+            --card-bg-light: #333333;
+            --primary-light: #1e90ff;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-button">⋮</div>
+    <div class="menu">
+        <button id="toggle-dark-mode">Toggle Dark Mode</button>
+        <button onclick="window.location.href='https://gammatube.koyeb.app/login'">Login</button>
+        <button onclick="window.location.href='https://gammatube.koyeb.app/watch_history'">History</button>
+        <button onclick="window.location.href='https://gammatube.koyeb.app/'">Home</button>
+    </div>
+
+    <div class="form-container">
+        <h2>Subscribe to GammaTube</h2>
+        <form action="/subscribe" method="POST">
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="text" name="username" placeholder="Enter your username" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menu-button');
+            const menu = document.querySelector('.menu');
+            const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
+
+            menuButton.addEventListener('click', () => {
+                menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+            });
+
+            toggleDarkModeButton.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                menu.classList.toggle('dark-mode');
+            });
+        });
+    </script>
+</body>
+</html>
