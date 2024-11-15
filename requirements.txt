@@ -8,3 +8,4 @@ psycopg2==2.9.10
 psycopg2-binary==2.9.9
 BeautifulSoup4==4.12.3
 bs4==0.0.2
+Flask-Login==0.6.3
