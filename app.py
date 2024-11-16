@@ -584,7 +584,6 @@ def fetch_language():
         return jsonify({'default_language': 'en'})
 
 @app.route('/subscribe', methods=['GET'])
-@login_required
 def subscribe_page():
     return render_template('subscribe.html')
 
