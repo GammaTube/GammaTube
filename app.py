@@ -12,9 +12,14 @@ import string
 import os
 import requests
 from bs4 import BeautifulSoup
+from datetime import timedelta  # Import timedelta for session expiration
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
+
+# Configuration for permanent sessions
+app.config['SESSION_PERMANENT'] = True  # Make the session permanent
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)  # Session lifetime of 365 days
 
 # Configuration for the database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
