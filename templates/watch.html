@@ -138,12 +138,87 @@
             margin-top: 20px;
             border-radius: 8px;
             overflow: hidden;
+            position: relative;
         }
 
-        .video-player iframe {
-            width: 100%;
-            height: 100%;
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            width: 90%;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 10;
+        }
+
+        .playback-controls {
+            display: flex;
+            gap: 10px;
+            color: #fff;
+        }
+
+        .playback-controls button {
+            background: none;
             border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .playback-controls button:hover {
+            transform: scale(1.2);
+        }
+
+        .progress-bar {
+            width: 60%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .progress-bar input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            appearance: none;
+            height: 100%;
+            position: absolute;
+            top: 0;
+        }
+
+        .progress-bar input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .progress-bar input::-webkit-slider-runnable-track {
+            background: transparent;
+        }
+
+        .playback-info {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: #fff;
+            display: none;
         }
     </style>
 </head>
@@ -162,50 +237,117 @@
     </div>
 
     <div class="video-player" id="video-player">
-        <!-- Video iframe will be inserted here -->
+        <div class="loading" id="loading">Loading...</div>
+        <div id="player"></div>
+        <div class="controls">
+            <div class="playback-controls">
+                <button id="playButton">▶️</button>
+            </div>
+            <div class="progress-bar">
+                <input type="range" id="seekBar" min="0" max="100" value="0" />
+            </div>
+            <div class="playback-info">
+                <span id="currentTime">00:00</span> / <span id="duration">00:00</span>
+            </div>
+        </div>
     </div>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const menuButton = document.getElementById('menu-button');
-            const menu = document.querySelector('.menu');
-            const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
-            const searchButton = document.getElementById('search-button');
-            const searchBar = document.getElementById('search-bar');
-            const videoPlayer = document.getElementById('video-player');
-            const videoId = new URLSearchParams(window.location.search).get('v');
+        let player;
+        let isPlaying = false;
+        let duration = 0;
+        let currentTime = 0;
 
-            if (videoId) {
-                videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: new URLSearchParams(window.location.search).get('v'),
+                playerVars: {
+                    controls: 0,
+                    modestbranding: 1,
+                    rel: 0,
+                    showinfo: 0,
+                    fs: 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            document.getElementById('loading').style.display = 'none';
+            duration = player.getDuration();
+            document.getElementById('duration').textContent = formatTime(duration);
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING && !isPlaying) {
+                isPlaying = true;
+                document.getElementById('playButton').textContent = '⏸️';
+            } else if (event.data === YT.PlayerState.PAUSED && isPlaying) {
+                isPlaying = false;
+                document.getElementById('playButton').textContent = '▶️';
             }
+        }
 
-            menuButton.addEventListener('click', () => {
-                menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
-            });
-
-            toggleDarkModeButton.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                menu.classList.toggle('dark-mode');
-            });
-
-            searchButton.addEventListener('click', () => {
-                searchVideos();
-            });
-
-            searchBar.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    searchVideos();
-                }
-            });
-
-            function searchVideos() {
-                const query = searchBar.value.trim();
-                if (query) {
-                    window.location.href = `/search?query=${encodeURIComponent(query)}`;
-                }
+        document.getElementById('playButton').addEventListener('click', function() {
+            if (isPlaying) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
             }
         });
+
+        document.getElementById('seekBar').addEventListener('input', function() {
+            let seekValue = this.value;
+            player.seekTo(seekValue * duration / 100, true);
+        });
+
+        setInterval(function() {
+            currentTime = player.getCurrentTime();
+            document.getElementById('currentTime').textContent = formatTime(currentTime);
+            document.getElementById('seekBar').value = (currentTime / duration) * 100;
+        }, 500);
+
+        function formatTime(seconds) {
+            let minutes = Math.floor(seconds / 60);
+            seconds = Math.floor(seconds % 60);
+            return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Dark Mode Toggle
+        document.getElementById('toggle-dark-mode').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            document.querySelector('.menu').classList.toggle('dark-mode');
+        });
+
+        // Menu Toggle
+        document.getElementById('menu-button').addEventListener('click', function() {
+            let menu = document.querySelector('.menu');
+            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
+        });
+
+        // Search Functionality
+        document.getElementById('search-button').addEventListener('click', function() {
+            searchVideos();
+        });
+
+        document.getElementById('search-bar').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchVideos();
+            }
+        });
+
+        function searchVideos() {
+            const query = document.getElementById('search-bar').value.trim();
+            if (query) {
+                window.location.href = `/search?query=${encodeURIComponent(query)}`;
+            }
+        }
     </script>
-    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
 </body>
 </html>
