@@ -174,7 +174,7 @@
                     <div class="video-card">
                         <a href="/watch?v={{ item.video_id }}">
                             <img src="https://img.youtube.com/vi/{{ item.video_id }}/hqdefault.jpg" alt="{{ item.title }}">
-                            <h3>{{ item.title }}</h3> <!-- Title appears above -->
+                            <h3>{{ item.video_name }}</h3> <!-- Display the video name -->
                             <p>Watched on: {{ item.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p> <!-- Watched on appears below -->
                         </a>
                     </div>
