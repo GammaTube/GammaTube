@@ -121,25 +121,28 @@ def send_signup_email(to_email, username):
         raise
         
 def get_youtube_title(video_id):
-    # Construct the YouTube video URL
-    url = f"https://www.youtube.com/watch?v={video_id}"
+    # Construct the API URL
+    url = f"https://api4gammatube.pythonanywhere.com/Video_title/{video_id}"
     try:
-        # Send an HTTP GET request to the video page
+        # Send an HTTP GET request to the API
         response = requests.get(url)
+        
         # Check if the request was successful
         if response.status_code != 200:
-            print("Error: Unable to access video page")
+            print("Error: Unable to access video data from the API")
             return None
 
-        # Parse the HTML content
-        soup = BeautifulSoup(response.text, 'html.parser')
+        # Parse the JSON response
+        data = response.json()
         
-        # YouTube stores the title in the <title> tag with " - YouTube" appended
-        title_tag = soup.find("title")
-        if title_tag:
-            title = title_tag.text.replace(" - YouTube", "")
+        # Check if 'title' is in the response
+        if 'title' in data:
+            title = data['title']
             print(f"Video accessed with Title: {title}")
             return title
+        else:
+            print("Error: Title not found in the response")
+            return None
         
     except Exception as e:
         print(f"An error occurred: {e}")
