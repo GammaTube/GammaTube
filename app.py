@@ -317,8 +317,10 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Get the 'redirect' parameter from the URL query string if present
-    redirect_url = request.args.get('redirect', url_for('index'))  # Default to the homepage if not provided
+    # Get the 'redirect' parameter and ensure it's a valid relative URL
+    redirect_url = request.args.get('redirect', None)
+    if not redirect_url or not redirect_url.startswith('/'):
+        redirect_url = url_for('index')  # Default to homepage if invalid or not provided
 
     if request.method == 'POST':
         username = request.form['username']
@@ -332,10 +334,11 @@ def login():
             # Store the username in the session to indicate the user is logged in
             session['username'] = username
             flash('Login successful!', 'success')
-            # Redirect to the specified URL or fallback to the homepage
+            # Redirect to the validated redirect URL or homepage
             return redirect(redirect_url)
         else:
             flash('Invalid username or password!', 'error')
+            # Retain the redirect parameter in the query string for the login page
             return redirect(url_for('login', redirect=redirect_url))
 
     return render_template('login.html')
