@@ -278,10 +278,8 @@
             }
 
             function searchContent(query) {
-                Promise.all([
-                    fetch(`/api/search?query=${encodeURIComponent(query)}`),
-                    fetch(`https://gammatube.koyeb.app/api/playlist_search?query=${encodeURIComponent(query)}`)
-                ])
+            Promise.all([fetch(`/api/search?query=${encodeURIComponent(query)}`), fetch(`https://gammatube.koyeb.app/api/playlist_search?query=${encodeURIComponent(query)}`)])
+
                 .then(responses => Promise.all(responses.map(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
