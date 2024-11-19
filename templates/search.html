@@ -278,8 +278,10 @@
             }
 
             function searchContent(query) {
-            Promise.all([fetch(`https://gammatube.koyeb.app/api/playlist_search?query=${encodeURIComponent(query)}`), fetch(`/api/search?query=${encodeURIComponent(query)}`)]);
-
+                Promise.all([
+                    fetch(`/api/search?query=${encodeURIComponent(query)}`),
+                    fetch(`https://gammatube.koyeb.app/api/playlist_search?query=${encodeURIComponent(query)}`)
+                ])
                 .then(responses => Promise.all(responses.map(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -320,13 +322,6 @@
                 });
             }
         });
-        window.addEventListener('load', function() {
-    setTimeout(function() {
-        // Delay content loading or other actions
-        document.body.style.visibility = 'visible';
-    }, 5000); // 5000 milliseconds = 5 seconds
-});
-        setTimeout(delayedAction, 5000);  // Delay execution by 5 seconds
     </script>
 </body>
 </html>
