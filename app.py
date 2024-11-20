@@ -230,45 +230,35 @@ def channel_search():
         return jsonify({'error': 'An error occurred during the channel search'}), 500
 
 
-@app.route('/api/playlist_search', methods=['GET'])
+@app.route('/api/playlist_search')
 def playlist_search():
-    # Get the search query from the request arguments
-    query = request.args.get('query', '').strip()
+    query = request.args.get('query', '')
     print(f"Playlist search accessed with query: {query}")
-    
     if not query:
         return jsonify({'error': 'No query provided'}), 400
 
     try:
-        # Call the external API
-        external_api_url = 'https://api4gammatube.pythonanywhere.com/search_playlists/'
-        response = requests.get(f"{external_api_url}", params={'query': query})
-        
-        if response.status_code == 200:
-            results = response.json()
-            
-            playlists = []
-            for item in results.get('playlists', []):  # Assuming API returns playlists in 'playlists' key
-                title = item.get('title', 'No title')
-                thumbnail = item['thumbnail'] if item.get('thumbnail') else 'https://via.placeholder.com/120x90'
-                playlist_url = item.get('url', 'https://www.youtube.com/')
-                playlist_id = item.get('playlistId', 'Unknown')
-                video_count = item.get('videoCount', 'Unknown')
+        playlist_search = PlaylistsSearch(query, limit=10)
+        results = playlist_search.result()
 
-                playlists.append({
-                    'title': title,
-                    'playlistId': playlist_id,
-                    'url': playlist_url,
-                    'thumbnail': thumbnail,
-                    'videoCount': video_count
-                })
-            
-            return jsonify(playlists)
-        else:
-            # Handle non-200 responses from the external API
-            return jsonify({'error': f"External API returned status code {response.status_code}"}), response.status_code
+        playlists = []
+        for item in results['result']:
+            title = item.get('title', 'No title')
+            thumbnail = item['thumbnails'][0]['url'] if item.get('thumbnails') else 'https://via.placeholder.com/120x90'
+            playlist_url = 'https://www.youtube.com/playlist?list=' + item['id']
+            playlist_id = item['id']
+            video_count = item.get('videoCount', 'Unknown')
+
+            playlists.append({
+                'title': title,
+                'playlistId': playlist_id,
+                'url': playlist_url,
+                'thumbnail': thumbnail,
+                'videoCount': video_count
+            })
+
+        return jsonify(playlists)
     except Exception as e:
-        # Log the exception and return a general error message
         print(f"Error during playlist search: {e}")
         return jsonify({'error': 'An error occurred during the playlist search'}), 500
 
