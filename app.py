@@ -317,6 +317,10 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    app.logger.debug(f"URL: {request.url}")
+
+    #TODO: @Gamma7113131, check the logs in the Koyeb console when the page is loaded to see if it's receiveing the full url. If it shows the full URL, url = re.search(r"[?&]redirect=([^&]+)", request.url)
+    
     # Get the 'redirect' parameter and ensure it's a valid relative URL
     redirect_url = request.args.get('redirect', None)
     if not redirect_url or not redirect_url.startswith('/'):
