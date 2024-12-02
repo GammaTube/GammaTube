@@ -238,18 +238,29 @@ def playlist_search():
         return jsonify({'error': 'No query provided'}), 400
 
     try:
-        playlist_search = PlaylistsSearch(query, limit=10)
-        results = playlist_search.result()
+        # Call the external API
+        api_url = f"https://api4gammatube.pythonanywhere.com/search_playlists/{query}"
+        response = requests.get(api_url)
+        
+        # Check if the API call was successful
+        if response.status_code != 200:
+            print(f"Error from external API: {response.text}")
+            return jsonify({'error': 'Failed to fetch playlist data from external source'}), 500
+        
+        # Parse the response data
+        data = response.json()
+        playlists = data.get('playlists', [])
 
-        playlists = []
-        for item in results['result']:
+        # Format the results
+        formatted_playlists = []
+        for item in playlists:
             title = item.get('title', 'No title')
-            thumbnail = item['thumbnails'][0]['url'] if item.get('thumbnails') else 'https://via.placeholder.com/120x90'
-            playlist_url = 'https://www.youtube.com/playlist?list=' + item['id']
-            playlist_id = item['id']
+            thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
+            playlist_url = item.get('url', '')
+            playlist_id = item.get('playlistId', '')
             video_count = item.get('videoCount', 'Unknown')
 
-            playlists.append({
+            formatted_playlists.append({
                 'title': title,
                 'playlistId': playlist_id,
                 'url': playlist_url,
@@ -257,11 +268,10 @@ def playlist_search():
                 'videoCount': video_count
             })
 
-        return jsonify(playlists)
+        return jsonify(formatted_playlists)
     except Exception as e:
         print(f"Error during playlist search: {e}")
         return jsonify({'error': 'An error occurred during the playlist search'}), 500
-
 
 @app.route('/watch')
 def watch():
