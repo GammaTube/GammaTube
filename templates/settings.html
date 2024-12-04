@@ -176,22 +176,68 @@
             </div>
         </div>
 
-        <!-- Password Section -->
-        <div id="password" class="setting-section">
-            <h2>Change Password</h2>
-            <div class="setting-item">
-                <label for="current-password">Current Password</label>
-                <input type="password" id="current-password" placeholder="Current password">
-            </div>
-            <div class="setting-item">
-                <label for="new-password">New Password</label>
-                <input type="password" id="new-password" placeholder="New password">
-            </div>
-            <div class="setting-item">
-                <label for="confirm-password">Confirm New Password</label>
-                <input type="password" id="confirm-password" placeholder="Confirm new password">
-            </div>
-        </div>
+<!-- Password Section -->
+<div id="password" class="setting-section">
+    <h2>Change Password</h2>
+    <div class="setting-item">
+        <label for="current-password">Current Password</label>
+        <input type="password" id="current-password" placeholder="Current password">
+    </div>
+    <div class="setting-item">
+        <label for="new-password">New Password</label>
+        <input type="password" id="new-password" placeholder="New password">
+    </div>
+    <div class="setting-item">
+        <label for="confirm-password">Confirm New Password</label>
+        <input type="password" id="confirm-password" placeholder="Confirm new password">
+    </div>
+    <button id="change-password-btn">Change Password</button>
+    <div id="password-message"></div> <!-- For feedback messages -->
+</div>
+
+<script>
+    document.getElementById('change-password-btn').addEventListener('click', function() {
+        // Get the values from the form
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        // Check if the passwords match
+        if (newPassword !== confirmPassword) {
+            document.getElementById('password-message').innerHTML = 'New password and confirm password do not match.';
+            return;
+        }
+
+        // Create the data object to send via POST
+        const data = {
+            current_password: currentPassword,
+            new_password: newPassword
+        };
+
+        // Make the AJAX request to the /change_password route
+        fetch('/change_password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('password-message').innerHTML = 'Password changed successfully!';
+                document.getElementById('password-message').style.color = 'green';
+            } else {
+                document.getElementById('password-message').innerHTML = data.message;
+                document.getElementById('password-message').style.color = 'red';
+            }
+        })
+        .catch(error => {
+            document.getElementById('password-message').innerHTML = 'Error changing password: ' + error;
+            document.getElementById('password-message').style.color = 'red';
+        });
+    });
+</script>
 
         <!-- Privacy Settings Section -->
         <div id="privacy" class="setting-section">
