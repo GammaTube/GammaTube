@@ -657,6 +657,13 @@ def get_mode():
 
     return jsonify({'username': username, 'mode': user_mode.mode})
 
+@app.route('/BingSiteAuth.xml')
+def sitemap():
+    try:
+        return send_file('BingSiteAuth.xml', mimetype='application/xml')
+    except Exception as e:
+        return Response(f"Error serving sitemap: {e}", status=500)
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
