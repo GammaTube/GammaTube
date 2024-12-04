@@ -657,12 +657,39 @@ def get_mode():
 
     return jsonify({'username': username, 'mode': user_mode.mode})
 
-@app.route('/BingSiteAuth.xml')
-def sitemap():
-    try:
-        return send_file('BingSiteAuth.xml', mimetype='application/xml')
-    except Exception as e:
-        return Response(f"Error serving sitemap: {e}", status=500)
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    # Ensure the user is logged in
+    if 'username' not in session:
+        return jsonify(success=False, message='You must be logged in to change your password.'), 401
+
+    username = session['username']
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return jsonify(success=False, message='User not found. Please log in again.'), 404
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify(success=False, message='Invalid request. No data provided.'), 400
+
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+
+    # Validate request data
+    if not current_password or not new_password:
+        return jsonify(success=False, message='Current password and new password are required.'), 400
+
+    # Verify the current password
+    if not check_password_hash(user.password_hash, current_password):
+        return jsonify(success=False, message='Current password is incorrect.'), 403
+
+    # Hash the new password and update the user's password
+    user.password_hash = generate_password_hash(new_password)
+    db.session.commit()
+
+    return jsonify(success=True, message='Password changed successfully!'), 200
 
 @app.errorhandler(404)
 def page_not_found(e):
