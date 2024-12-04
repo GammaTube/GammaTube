@@ -223,10 +223,56 @@
                 menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
             });
 
-            toggleDarkModeButton.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                menu.classList.toggle('dark-mode');
-            });
+// Function to fetch the mode from the server
+async function fetchMode() {
+    try {
+        const response = await fetch('/get_mode'); // API call to get mode
+        const data = await response.json();
+        if (data.mode === 'dark') {
+            applyDarkMode(); // Apply dark mode if the user's mode is 'dark'
+        }
+    } catch (error) {
+        console.error('Error fetching mode:', error);
+    }
+}
+
+// Function to apply dark mode
+function applyDarkMode() {
+    document.body.classList.add('dark-mode');
+    menu.classList.add('dark-mode');
+    document.querySelectorAll('.video-card').forEach(card => card.classList.add('dark-mode'));
+    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.add('dark-mode'));
+}
+
+// Function to remove dark mode
+function removeDarkMode() {
+    document.body.classList.remove('dark-mode');
+    menu.classList.remove('dark-mode');
+    document.querySelectorAll('.video-card').forEach(card => card.classList.remove('dark-mode'));
+    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.remove('dark-mode'));
+}
+
+// Toggle dark mode and update the mode on the server
+async function toggleDarkMode() {
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    menu.classList.toggle('dark-mode');
+    document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+
+    // Update the mode on the server
+    const mode = isDarkMode ? 'dark' : 'light';
+    try {
+        await fetch(`/update_mode/${mode}`, { method: 'POST' });
+    } catch (error) {
+        console.error('Error updating mode:', error);
+    }
+}
+
+// Add event listener for the toggle button
+toggleDarkModeButton.addEventListener('click', toggleDarkMode);
+
+// Fetch and apply the mode when the page loads
+window.addEventListener('DOMContentLoaded', fetchMode);
 
             searchButton.addEventListener('click', () => {
                 searchVideos();
