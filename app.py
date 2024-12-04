@@ -83,6 +83,15 @@ class Subscription(db.Model):
     def __repr__(self):
         return f"<Subscription {self.username}, {self.email}>"
 
+# Mode model for the database
+class Mode(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    mode = db.Column(db.String(10), nullable=False, default='light')  # 'light' or 'dark'
+
+    def __repr__(self):
+        return f'<Mode {self.username} - {self.mode}>'
+
 # Initialize the database (create tables)
 with app.app_context():
     db.create_all()
@@ -611,6 +620,42 @@ def fetch_language():
 @app.route('/subscribe', methods=['GET'])
 def subscribe_page():
     return render_template('subscribe.html')
+
+@app.route('/update_mode/<string:mode>', methods=['POST'])
+def update_mode(mode):
+    if 'username' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    username = session['username']
+
+    # Validate mode
+    if mode not in ['light', 'dark']:
+        return jsonify({'error': 'Invalid mode'}), 400
+
+    # Find or create the Mode entry for the user
+    user_mode = Mode.query.filter_by(username=username).first()
+    if user_mode:
+        user_mode.mode = mode  # Update the mode
+    else:
+        user_mode = Mode(username=username, mode=mode)
+        db.session.add(user_mode)
+
+    db.session.commit()
+    return jsonify({'message': 'Mode updated successfully', 'username': username, 'mode': mode})
+
+@app.route('/get_mode', methods=['GET'])
+def get_mode():
+    if 'username' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    username = session['username']
+    user_mode = Mode.query.filter_by(username=username).first()
+
+    if not user_mode:
+        # Default to 'light' if no mode is found
+        return jsonify({'username': username, 'mode': 'light'})
+
+    return jsonify({'username': username, 'mode': user_mode.mode})
 
 @app.errorhandler(404)
 def page_not_found(e):
