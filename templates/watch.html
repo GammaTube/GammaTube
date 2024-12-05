@@ -10,6 +10,15 @@
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
     <meta name="bingbot" content="index, follow">
+
+    <!-- Open Graph Meta Tags for Rich Previews -->
+    <meta property="og:title" content="{{ video_name }}">
+    <meta property="og:description" content="Watch {{ video_name }} on GammaTube.">
+    <meta property="og:url" content="https://gammatube.koyeb.app/watch?v={{ video_id }}">
+    <meta property="og:image" content="https://i.ytimg.com/vi/{{ video_id }}/hq720.jpg">
+    <meta property="og:type" content="video.other">
+    <meta property="og:video" content="https://www.youtube.com/embed/{{ video_id }}">
+    <meta property="og:video:type" content="text/html">
         
     <title>{{ (video_name[:50] + '...') if video_name|length > 50 else video_name }} - GammaTube</title>
         
