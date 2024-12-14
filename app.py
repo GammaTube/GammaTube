@@ -294,8 +294,9 @@ def fetch_youtube_video_details(video_id):
                 "title": response_data.get("title", "Unknown Title"),
                 "description": response_data["description"],
                 "channel_title": response_data["channel_title"],
-                "thumbnail_url": response_data.get("thumbnail_url", "")
-                "channel_id": response_data.get("channel_id", "")
+                "thumbnail_url": response_data.get("thumbnail_url", ""),
+                "channel_id": response_data.get("channel_id", ""),
+                "channel_thumbnail": response_data.get("channel_thumbnail", "")
             }
         else:
             return None  # Video not found
@@ -331,7 +332,7 @@ def watch():
     
     username = session.get('username')
 
-    # Fetch video details (description, channel title, and channel ID)
+    # Fetch video details (description, channel title, channel ID, and channel thumbnail)
     video_details = fetch_youtube_video_details(video_id)
     if video_details:
         video_name = video_details["title"]
@@ -339,12 +340,14 @@ def watch():
         video_channel_title = video_details["channel_title"]
         thumbnail_url = video_details["thumbnail"]
         channel_id = video_details["channel_id"]  # Get the channel ID
+        channel_thumbnail_url = video_details["channel_thumbnail"]  # Get the channel profile picture URL
     else:
         video_name = 'Unknown Title'
         video_description = 'No description available.'
         video_channel_title = 'Unknown Channel'
         thumbnail_url = ''
         channel_id = 'Unknown Channel ID'
+        channel_thumbnail_url = ''  # Default if channel thumbnail not available
 
     # Fetch video statistics (views and likes)
     video_stats = fetch_youtube_video_statistics(video_id)
@@ -370,7 +373,8 @@ def watch():
         views=views,
         likes=likes,
         thumbnail_url=thumbnail_url,
-        channel_id=channel_id  # Pass channel ID to template
+        channel_id=channel_id,  # Pass channel ID to template
+        channel_thumbnail_url=channel_thumbnail_url  # Pass channel profile picture URL to template
     )
     
 @app.route('/signup', methods=['GET', 'POST'])
