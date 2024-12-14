@@ -279,7 +279,7 @@ def playlist_search():
         return jsonify(formatted_playlists)
     except Exception as e:
         print(f"Error during playlist search: {e}")
-        return jsonify({'error': 'An error occurred during the playlist search'}), 500'
+        return jsonify({'error': 'An error occurred during the playlist search'}), 500
 
 # Function to fetch video details (description and channel title)
 def fetch_youtube_video_details(video_id):
