@@ -281,6 +281,53 @@ def playlist_search():
         print(f"Error during playlist search: {e}")
         return jsonify({'error': 'An error occurred during the playlist search'}), 500
 
+from flask import Flask, render_template, request, redirect, url_for, session
+import requests
+
+app = Flask(__name__)
+
+# Make sure to set a secret key for the session to work
+app.secret_key = 'your_secret_key'
+
+# Function to fetch video details (description and channel title)
+def fetch_youtube_video_details(video_id):
+    try:
+        # Construct the URL for fetching video details
+        url = f"https://api4gammatube.pythonanywhere.com/Video_details/{video_id}"
+        response = requests.get(url)
+        response_data = response.json()
+
+        if "channel_title" in response_data and "description" in response_data:
+            return {
+                "title": response_data.get("title", "Unknown Title"),
+                "description": response_data["description"],
+                "channel_title": response_data["channel_title"],
+                "thumbnail_url": response_data.get("thumbnail_url", "")
+            }
+        else:
+            return None  # Video not found
+    except Exception as e:
+        return {"error": str(e)}
+
+# Function to fetch video statistics (views and likes)
+def fetch_youtube_video_statistics(video_id):
+    try:
+        # Construct the URL for fetching video statistics
+        url = f"https://api4gammatube.pythonanywhere.com/Video_statistics/{video_id}"
+        response = requests.get(url)
+        response_data = response.json()
+
+        if "statistics" in response_data:
+            return {
+                "views": response_data["statistics"].get("views", 0),
+                "likes": response_data["statistics"].get("likes", 0),
+            }
+        else:
+            return None  # Statistics not found
+    except Exception as e:
+        return {"error": str(e)}
+
+# Watch route
 @app.route('/watch')
 def watch():
     video_id = request.args.get('v')
@@ -291,7 +338,28 @@ def watch():
     print(f"Watch route accessed with video_id: {video_id}")
     
     username = session.get('username')
-    video_name = get_youtube_title(video_id) or 'Unknown Title'  # Use the new function here
+
+    # Fetch video details (description and channel title)
+    video_details = fetch_youtube_video_details(video_id)
+    if video_details:
+        video_name = video_details["title"]
+        video_description = video_details["description"]
+        video_channel_title = video_details["channel_title"]
+        thumbnail_url = video_details["thumbnail_url"]
+    else:
+        video_name = 'Unknown Title'
+        video_description = 'No description available.'
+        video_channel_title = 'Unknown Channel'
+        thumbnail_url = ''
+
+    # Fetch video statistics (views and likes)
+    video_stats = fetch_youtube_video_statistics(video_id)
+    if video_stats:
+        views = video_stats["views"]
+        likes = video_stats["likes"]
+    else:
+        views = 0
+        likes = 0
 
     # Store watch history only if the user is logged in
     if username:
@@ -299,7 +367,16 @@ def watch():
         db.session.add(new_history_entry)
         db.session.commit()
 
-    return render_template('watch.html', video_id=video_id, video_name=video_name)
+    return render_template(
+        'watch.html', 
+        video_id=video_id, 
+        video_name=video_name,
+        video_description=video_description,
+        video_channel_title=video_channel_title,
+        views=views,
+        likes=likes,
+        thumbnail_url=thumbnail_url
+    )
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():    
