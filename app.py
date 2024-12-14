@@ -279,15 +279,7 @@ def playlist_search():
         return jsonify(formatted_playlists)
     except Exception as e:
         print(f"Error during playlist search: {e}")
-        return jsonify({'error': 'An error occurred during the playlist search'}), 500
-
-from flask import Flask, render_template, request, redirect, url_for, session
-import requests
-
-app = Flask(__name__)
-
-# Make sure to set a secret key for the session to work
-app.secret_key = 'your_secret_key'
+        return jsonify({'error': 'An error occurred during the playlist search'}), 500'
 
 # Function to fetch video details (description and channel title)
 def fetch_youtube_video_details(video_id):
@@ -303,6 +295,7 @@ def fetch_youtube_video_details(video_id):
                 "description": response_data["description"],
                 "channel_title": response_data["channel_title"],
                 "thumbnail_url": response_data.get("thumbnail_url", "")
+                "channel_id": response_data.get("channel_id", "")
             }
         else:
             return None  # Video not found
@@ -327,7 +320,6 @@ def fetch_youtube_video_statistics(video_id):
     except Exception as e:
         return {"error": str(e)}
 
-# Watch route
 @app.route('/watch')
 def watch():
     video_id = request.args.get('v')
@@ -339,18 +331,20 @@ def watch():
     
     username = session.get('username')
 
-    # Fetch video details (description and channel title)
+    # Fetch video details (description, channel title, and channel ID)
     video_details = fetch_youtube_video_details(video_id)
     if video_details:
         video_name = video_details["title"]
         video_description = video_details["description"]
         video_channel_title = video_details["channel_title"]
-        thumbnail_url = video_details["thumbnail_url"]
+        thumbnail_url = video_details["thumbnail"]
+        channel_id = video_details["channel_id"]  # Get the channel ID
     else:
         video_name = 'Unknown Title'
         video_description = 'No description available.'
         video_channel_title = 'Unknown Channel'
         thumbnail_url = ''
+        channel_id = 'Unknown Channel ID'
 
     # Fetch video statistics (views and likes)
     video_stats = fetch_youtube_video_statistics(video_id)
@@ -375,9 +369,10 @@ def watch():
         video_channel_title=video_channel_title,
         views=views,
         likes=likes,
-        thumbnail_url=thumbnail_url
+        thumbnail_url=thumbnail_url,
+        channel_id=channel_id  # Pass channel ID to template
     )
-
+    
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():    
     if request.method == 'POST':
