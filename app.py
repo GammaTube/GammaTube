@@ -338,7 +338,7 @@ def watch():
         video_name = video_details["title"]
         video_description = video_details["description"]
         video_channel_title = video_details["channel_title"]
-        thumbnail_url = video_details["thumbnail"]
+        thumbnail_url = video_details["thumbnail_url"]
         channel_id = video_details["channel_id"]  # Get the channel ID
         channel_thumbnail_url = video_details["channel_thumbnail"]  # Get the channel profile picture URL
     else:
