@@ -173,6 +173,65 @@
             height: 100%;
             border: none;
         }
+
+        .video-details {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        .video-description {
+            background-color: var(--card-bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .video-description.dark-mode {
+            background-color: var(--card-bg-dark);
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .channel-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .channel-info .channel-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .channel-info .channel-title.dark-mode {
+            color: var(--text-dark);
+        }
+
+        .likes-views {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 10px;
+        }
+
+        .likes-views div {
+            font-size: 16px;
+            color: var(--text-light);
+        }
+
+        .likes-views div.dark-mode {
+            color: var(--text-dark);
+        }
     </style>
 </head>
 <body>
@@ -191,6 +250,27 @@
 
     <div class="video-player" id="video-player">
         <!-- Video iframe will be inserted here -->
+    </div>
+
+    <!-- Video Details Section -->
+    <div class="video-details">
+        <div class="video-description">
+            <h2>Description:</h2>
+            <p>{{ video_description }}</p>
+        </div>
+        
+        <div class="channel-info">
+            <img src="{{ channel_thumbnail_url }}" alt="Channel Thumbnail">
+            <div>
+                <p class="channel-title">{{ video_channel_title }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Likes and Views Section -->
+    <div class="likes-views">
+        <div>{{ views }} views</div>
+        <div>{{ likes }} likes</div>
     </div>
 
     <script>
@@ -230,6 +310,9 @@ function applyDarkMode() {
     menu.classList.add('dark-mode');
     document.querySelectorAll('.video-card').forEach(card => card.classList.add('dark-mode'));
     document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.add('dark-mode'));
+    document.querySelectorAll('.video-description').forEach(desc => desc.classList.add('dark-mode'));
+    document.querySelectorAll('.channel-title').forEach(title => title.classList.add('dark-mode'));
+    document.querySelectorAll('.likes-views div').forEach(like => like.classList.add('dark-mode'));
 }
 
 // Function to remove dark mode
@@ -238,6 +321,9 @@ function removeDarkMode() {
     menu.classList.remove('dark-mode');
     document.querySelectorAll('.video-card').forEach(card => card.classList.remove('dark-mode'));
     document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.remove('dark-mode'));
+    document.querySelectorAll('.video-description').forEach(desc => desc.classList.remove('dark-mode'));
+    document.querySelectorAll('.channel-title').forEach(title => title.classList.remove('dark-mode'));
+    document.querySelectorAll('.likes-views div').forEach(like => like.classList.remove('dark-mode'));
 }
 
 // Toggle dark mode and update the mode on the server
@@ -246,6 +332,9 @@ async function toggleDarkMode() {
     menu.classList.toggle('dark-mode');
     document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
     document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+    document.querySelectorAll('.video-description').forEach(desc => desc.classList.toggle('dark-mode'));
+    document.querySelectorAll('.channel-title').forEach(title => title.classList.toggle('dark-mode'));
+    document.querySelectorAll('.likes-views div').forEach(like => like.classList.toggle('dark-mode'));
 
     // Update the mode on the server
     const mode = isDarkMode ? 'dark' : 'light';
@@ -280,7 +369,6 @@ window.addEventListener('DOMContentLoaded', fetchMode);
             }
         });
     </script>
-    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
-    <h1></h1>
+    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a></p>
 </body>
 </html>
