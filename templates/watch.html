@@ -161,7 +161,7 @@
         .video-player {
             width: 100%;
             max-width: 800px;
-            aspect-ratio: 16 / 9;
+            height: 450px;
             background-color: #000;
             margin-top: 20px;
             border-radius: 8px;
@@ -180,6 +180,7 @@
             width: 100%;
             max-width: 800px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .video-description {
@@ -187,7 +188,7 @@
             padding: 15px;
             border-radius: 8px;
             flex: 1;
-            margin-right: 20px;
+            margin-left: 20px;
         }
 
         .video-description.dark-mode {
@@ -197,6 +198,7 @@
         .channel-info {
             display: flex;
             align-items: center;
+            flex: 1;
         }
 
         .channel-info img {
@@ -227,10 +229,23 @@
         .likes-views div {
             font-size: 16px;
             color: var(--text-light);
+            display: flex;
+            align-items: center;
         }
 
         .likes-views div.dark-mode {
             color: var(--text-dark);
+        }
+
+        .likes-views svg {
+            margin-right: 5px;
+            width: 20px;
+            height: 20px;
+            fill: var(--text-light);
+        }
+
+        .likes-views.dark-mode svg {
+            fill: var(--text-dark);
         }
     </style>
 </head>
@@ -254,23 +269,29 @@
 
     <!-- Video Details Section -->
     <div class="video-details">
-        <div class="video-description">
-            <h2>Description:</h2>
-            <p>{{ video_description }}</p>
-        </div>
-        
         <div class="channel-info">
             <img src="{{ channel_thumbnail_url }}" alt="Channel Thumbnail">
             <div>
                 <p class="channel-title">{{ video_channel_title }}</p>
             </div>
         </div>
+        
+        <div class="video-description">
+            <h2>Description:</h2>
+            <p>{{ video_description }}</p>
+        </div>
     </div>
 
     <!-- Likes and Views Section -->
     <div class="likes-views">
-        <div>{{ views }} views</div>
-        <div>{{ likes }} likes</div>
+        <div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> 
+            {{ likes }}
+        </div>
+        <div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            {{ views }}
+        </div>
     </div>
 
     <script>
@@ -291,65 +312,58 @@
                 menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
             });
 
-// Function to fetch the mode from the server
-async function fetchMode() {
-    try {
-        const response = await fetch('/get_mode'); // API call to get mode
-        const data = await response.json();
-        if (data.mode === 'dark') {
-            applyDarkMode(); // Apply dark mode if the user's mode is 'dark'
-        }
-    } catch (error) {
-        console.error('Error fetching mode:', error);
-    }
-}
+            async function fetchMode() {
+                try {
+                    const response = await fetch('/get_mode'); 
+                    const data = await response.json();
+                    if (data.mode === 'dark') {
+                        applyDarkMode();
+                    }
+                } catch (error) {
+                    console.error('Error fetching mode:', error);
+                }
+            }
 
-// Function to apply dark mode
-function applyDarkMode() {
-    document.body.classList.add('dark-mode');
-    menu.classList.add('dark-mode');
-    document.querySelectorAll('.video-card').forEach(card => card.classList.add('dark-mode'));
-    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.add('dark-mode'));
-    document.querySelectorAll('.video-description').forEach(desc => desc.classList.add('dark-mode'));
-    document.querySelectorAll('.channel-title').forEach(title => title.classList.add('dark-mode'));
-    document.querySelectorAll('.likes-views div').forEach(like => like.classList.add('dark-mode'));
-}
+            function applyDarkMode() {
+                document.body.classList.add('dark-mode');
+                menu.classList.add('dark-mode');
+                document.querySelectorAll('.video-card').forEach(card => card.classList.add('dark-mode'));
+                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.add('dark-mode'));
+                document.querySelectorAll('.video-description').forEach(desc => desc.classList.add('dark-mode'));
+                document.querySelectorAll('.channel-title').forEach(title => title.classList.add('dark-mode'));
+                document.querySelectorAll('.likes-views div').forEach(like => like.classList.add('dark-mode'));
+            }
 
-// Function to remove dark mode
-function removeDarkMode() {
-    document.body.classList.remove('dark-mode');
-    menu.classList.remove('dark-mode');
-    document.querySelectorAll('.video-card').forEach(card => card.classList.remove('dark-mode'));
-    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.remove('dark-mode'));
-    document.querySelectorAll('.video-description').forEach(desc => desc.classList.remove('dark-mode'));
-    document.querySelectorAll('.channel-title').forEach(title => title.classList.remove('dark-mode'));
-    document.querySelectorAll('.likes-views div').forEach(like => like.classList.remove('dark-mode'));
-}
+            function removeDarkMode() {
+                document.body.classList.remove('dark-mode');
+                menu.classList.remove('dark-mode');
+                document.querySelectorAll('.video-card').forEach(card => card.classList.remove('dark-mode'));
+                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.remove('dark-mode'));
+                document.querySelectorAll('.video-description').forEach(desc => desc.classList.remove('dark-mode'));
+                document.querySelectorAll('.channel-title').forEach(title => title.classList.remove('dark-mode'));
+                document.querySelectorAll('.likes-views div').forEach(like => like.classList.remove('dark-mode'));
+            }
 
-// Toggle dark mode and update the mode on the server
-async function toggleDarkMode() {
-    const isDarkMode = document.body.classList.toggle('dark-mode');
-    menu.classList.toggle('dark-mode');
-    document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
-    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
-    document.querySelectorAll('.video-description').forEach(desc => desc.classList.toggle('dark-mode'));
-    document.querySelectorAll('.channel-title').forEach(title => title.classList.toggle('dark-mode'));
-    document.querySelectorAll('.likes-views div').forEach(like => like.classList.toggle('dark-mode'));
+            async function toggleDarkMode() {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                menu.classList.toggle('dark-mode');
+                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.video-description').forEach(desc => desc.classList.toggle('dark-mode'));
+                document.querySelectorAll('.channel-title').forEach(title => title.classList.toggle('dark-mode'));
+                document.querySelectorAll('.likes-views div').forEach(like => like.classList.toggle('dark-mode'));
 
-    // Update the mode on the server
-    const mode = isDarkMode ? 'dark' : 'light';
-    try {
-        await fetch(`/update_mode/${mode}`, { method: 'POST' });
-    } catch (error) {
-        console.error('Error updating mode:', error);
-    }
-}
+                const mode = isDarkMode ? 'dark' : 'light';
+                try {
+                    await fetch(`/update_mode/${mode}`, { method: 'POST' });
+                } catch (error) {
+                    console.error('Error updating mode:', error);
+                }
+            }
 
-// Add event listener for the toggle button
-toggleDarkModeButton.addEventListener('click', toggleDarkMode);
+            toggleDarkModeButton.addEventListener('click', toggleDarkMode);
 
-// Fetch and apply the mode when the page loads
-window.addEventListener('DOMContentLoaded', fetchMode);
+            window.addEventListener('DOMContentLoaded', fetchMode);
 
             searchButton.addEventListener('click', () => {
                 searchVideos();
