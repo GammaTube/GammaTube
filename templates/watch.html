@@ -35,223 +35,145 @@
         
     <link rel="icon" type="image/png" sizes="32x32" href="https://convey-gammatube.koyeb.app/favicon.png">
     
-<style>
-    :root {
-        --background-light: #f4f4f4;
-        --background-dark: #181818;
-        --text-light: #000;
-        --text-dark: #fff;
-        --primary-light: #ff4d4d;
-        --primary-dark: #e60000;
-        --card-bg-light: #fff;
-        --card-bg-dark: #222;
-    }
+    <style>
+        :root {
+            --background-light: #f4f4f4;
+            --background-dark: #181818;
+            --text-light: #000;
+            --text-dark: #fff;
+            --primary-light: #ff4d4d;
+            --primary-dark: #e60000;
+            --card-bg-light: #fff;
+            --card-bg-dark: #222;
+        }
 
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: var(--background-light);
-        color: var(--text-light);
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 100vh;
-        overflow-y: auto;
-    }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    body.dark-mode {
-        background-color: var(--background-dark);
-        color: var(--text-dark);
-    }
+        body.dark-mode {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
 
-    #menu-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 40px;
-        height: 40px;
-        background-color: var(--primary-light);
-        color: var(--text-light);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 24px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        transition: background-color 0.3s;
-    }
+        #menu-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-light);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
 
-    #menu-button:hover {
-        background-color: var(--primary-dark);
-    }
+        #menu-button:hover {
+            background-color: var(--primary-dark);
+        }
 
-    .menu {
-        position: absolute;
-        top: 50px;
-        right: 10px;
-        display: none;
-        flex-direction: column;
-        align-items: flex-end;
-        background-color: var(--card-bg-light);
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        padding: 10px;
-    }
+        .menu {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            background-color: var(--card-bg-light);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
 
-    .menu.dark-mode {
-        background-color: var(--card-bg-dark);
-    }
+        .menu.dark-mode {
+            background-color: var(--card-bg-dark);
+        }
 
-    .menu button {
-        background: none;
-        border: none;
-        color: var(--text-light);
-        font-size: 16px;
-        padding: 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
+        .menu button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-    .menu button.dark-mode {
-        color: var(--text-dark);
-    }
+        .menu button.dark-mode {
+            color: var(--text-dark);
+        }
 
-    .menu button:hover {
-        background-color: var(--primary-light);
-    }
+        .menu button:hover {
+            background-color: var(--primary-light);
+        }
 
-    .menu button.dark-mode:hover {
-        background-color: var(--primary-dark);
-    }
+        .menu button.dark-mode:hover {
+            background-color: var(--primary-dark);
+        }
 
-    #search-container {
-        margin-top: 20px;
-        display: flex;
-        align-items: center;
-        width: 100%;
-        max-width: 800px;
-    }
+        #search-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
 
-    #search-bar {
-        flex: 1;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
+        #search-bar {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
-    #search-button {
-        padding: 10px 20px;
-        margin-left: 10px;
-        background: var(--primary-light);
-        border: none;
-        color: #fff;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-    }
+        #search-button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background: var(--primary-light);
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
 
-    #search-button:hover {
-        background: var(--primary-dark);
-    }
+        #search-button:hover {
+            background: var(--primary-dark);
+        }
 
-    .video-player {
-        width: 100%;
-        max-width: 800px;
-        height: 450px;
-        background-color: #000;
-        margin-top: 20px;
-        border-radius: 8px;
-        overflow: hidden;
-    }
+        .video-player {
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
 
-    .video-player iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-    }
-
-    /* Positioning the video details and likes/views at the bottom */
-    .video-details, .likes-views {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        max-width: 800px;
-        margin-top: 20px;
-        flex-wrap: wrap;
-    }
-
-    .video-description {
-        background-color: var(--card-bg-light);
-        padding: 15px;
-        border-radius: 8px;
-        flex: 1;
-        margin-left: 20px;
-        min-width: 300px;
-    }
-
-    .video-description.dark-mode {
-        background-color: var(--card-bg-dark);
-    }
-
-    .channel-info {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        min-width: 300px;
-    }
-
-    .channel-info img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-
-    .channel-info .channel-title {
-        font-size: 18px;
-        font-weight: bold;
-        color: var(--text-light);
-    }
-
-    .channel-info .channel-title.dark-mode {
-        color: var(--text-dark);
-    }
-
-    /* Likes and Views styling */
-    .likes-views div {
-        font-size: 16px;
-        color: var(--text-light);
-        display: flex;
-        align-items: center;
-    }
-
-    .likes-views div.dark-mode {
-        color: var(--text-dark);
-    }
-
-    .likes-views svg {
-        margin-right: 5px;
-        width: 20px;
-        height: 20px;
-        fill: var(--text-light);
-    }
-
-    .likes-views.dark-mode svg {
-        fill: var(--text-dark);
-    }
-
-    /* Fixing the footer positioning */
-    footer {
-        margin-top: auto; /* Ensures the footer is at the bottom of the page */
-        width: 100%;
-        text-align: center;
-        padding: 20px 0;
-    }
-</style>
+        .video-player iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
 </head>
 <body>
     <div id="menu-button">⋮</div>
@@ -271,35 +193,6 @@
         <!-- Video iframe will be inserted here -->
     </div>
 
-    <!-- Video Details Section -->
-    <div class="video-details">
-        <div class="channel-info">
-            <img src="{{ channel_thumbnail_url }}" alt="Channel Thumbnail">
-            <div>
-                <p class="channel-title">{{ video_channel_title }}</p>
-            </div>
-        </div>
-        
-        <div class="video-description">
-            <h2>Description:</h2>
-            <p>{{ video_description }}</p>
-        </div>
-    </div>
-
-    <!-- Likes and Views Section -->
-    <div class="likes-views">
-        <div>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> 
-            {{ likes }}
-        </div>
-        <div>
-            <svg xmlns="http://www.w3.org/2000/svg" height="30px" width="30px" fill="#000000" viewBox="0 -960 960 960">
-                <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/>
-            </svg>
-            {{ views }}
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const menuButton = document.getElementById('menu-button');
@@ -311,65 +204,63 @@
             const videoId = new URLSearchParams(window.location.search).get('v');
 
             if (videoId) {
-                videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" width="560" height="315" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             }
 
             menuButton.addEventListener('click', () => {
                 menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
             });
 
-            async function fetchMode() {
-                try {
-                    const response = await fetch('/get_mode'); 
-                    const data = await response.json();
-                    if (data.mode === 'dark') {
-                        applyDarkMode();
-                    }
-                } catch (error) {
-                    console.error('Error fetching mode:', error);
-                }
-            }
+// Function to fetch the mode from the server
+async function fetchMode() {
+    try {
+        const response = await fetch('/get_mode'); // API call to get mode
+        const data = await response.json();
+        if (data.mode === 'dark') {
+            applyDarkMode(); // Apply dark mode if the user's mode is 'dark'
+        }
+    } catch (error) {
+        console.error('Error fetching mode:', error);
+    }
+}
 
-            function applyDarkMode() {
-                document.body.classList.add('dark-mode');
-                menu.classList.add('dark-mode');
-                document.querySelectorAll('.video-card').forEach(card => card.classList.add('dark-mode'));
-                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.add('dark-mode'));
-                document.querySelectorAll('.video-description').forEach(desc => desc.classList.add('dark-mode'));
-                document.querySelectorAll('.channel-title').forEach(title => title.classList.add('dark-mode'));
-                document.querySelectorAll('.likes-views div').forEach(like => like.classList.add('dark-mode'));
-            }
+// Function to apply dark mode
+function applyDarkMode() {
+    document.body.classList.add('dark-mode');
+    menu.classList.add('dark-mode');
+    document.querySelectorAll('.video-card').forEach(card => card.classList.add('dark-mode'));
+    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.add('dark-mode'));
+}
 
-            function removeDarkMode() {
-                document.body.classList.remove('dark-mode');
-                menu.classList.remove('dark-mode');
-                document.querySelectorAll('.video-card').forEach(card => card.classList.remove('dark-mode'));
-                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.remove('dark-mode'));
-                document.querySelectorAll('.video-description').forEach(desc => desc.classList.remove('dark-mode'));
-                document.querySelectorAll('.channel-title').forEach(title => title.classList.remove('dark-mode'));
-                document.querySelectorAll('.likes-views div').forEach(like => like.classList.remove('dark-mode'));
-            }
+// Function to remove dark mode
+function removeDarkMode() {
+    document.body.classList.remove('dark-mode');
+    menu.classList.remove('dark-mode');
+    document.querySelectorAll('.video-card').forEach(card => card.classList.remove('dark-mode'));
+    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.remove('dark-mode'));
+}
 
-            async function toggleDarkMode() {
-                const isDarkMode = document.body.classList.toggle('dark-mode');
-                menu.classList.toggle('dark-mode');
-                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
-                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
-                document.querySelectorAll('.video-description').forEach(desc => desc.classList.toggle('dark-mode'));
-                document.querySelectorAll('.channel-title').forEach(title => title.classList.toggle('dark-mode'));
-                document.querySelectorAll('.likes-views div').forEach(like => like.classList.toggle('dark-mode'));
+// Toggle dark mode and update the mode on the server
+async function toggleDarkMode() {
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    menu.classList.toggle('dark-mode');
+    document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
 
-                const mode = isDarkMode ? 'dark' : 'light';
-                try {
-                    await fetch(`/update_mode/${mode}`, { method: 'POST' });
-                } catch (error) {
-                    console.error('Error updating mode:', error);
-                }
-            }
+    // Update the mode on the server
+    const mode = isDarkMode ? 'dark' : 'light';
+    try {
+        await fetch(`/update_mode/${mode}`, { method: 'POST' });
+    } catch (error) {
+        console.error('Error updating mode:', error);
+    }
+}
 
-            toggleDarkModeButton.addEventListener('click', toggleDarkMode);
+// Add event listener for the toggle button
+toggleDarkModeButton.addEventListener('click', toggleDarkMode);
 
-            window.addEventListener('DOMContentLoaded', fetchMode);
+// Fetch and apply the mode when the page loads
+window.addEventListener('DOMContentLoaded', fetchMode);
 
             searchButton.addEventListener('click', () => {
                 searchVideos();
@@ -389,6 +280,7 @@
             }
         });
     </script>
-    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a></p>
+    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
+    <h1></h1>
 </body>
 </html>
