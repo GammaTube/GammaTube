@@ -156,11 +156,51 @@ def get_youtube_title(video_id):
         print(f"An error occurred: {e}")
     return None
 
+import requests  # Required to make API calls
+
 @app.route('/')
 def index():
-    print("Index route accessed")
-    return render_template('index.html')
+    suggestions = []  # Default empty suggestions list
+    
+    # Check if the user is logged in
+    if 'username' in session:
+        username = session['username']
+        print(f"Index route accessed by logged-in user: {username}")
 
+        # Fetch watch history for the logged-in user
+        history = WatchHistory.query.filter_by(username=username).order_by(WatchHistory.timestamp.desc()).all()
+
+        # Extract video titles from the history
+        video_titles = [entry.video_name for entry in history]
+
+        for title in video_titles:
+            # Call the external API for suggestions for each title
+            try:
+                api_url = f"https://api4gammatube.pythonanywhere.com/Suggested_videos/{title}"
+                response = requests.get(api_url)
+                if response.status_code == 200:
+                    suggested_videos = response.json().get('videos', [])
+                    for video in suggested_videos:
+                        if len(suggestions) < 15:
+                            # Only add unique videos
+                            if not any(s["video_id"] == video["video_id"] for s in suggestions):
+                                suggestions.append({
+                                    "title": video["title"],
+                                    "video_id": video["video_id"],
+                                    "thumbnail": video["thumbnail"]
+                                })
+                        else:
+                            break
+                else:
+                    print(f"Failed to fetch suggestions for '{title}'. API responded with status: {response.status_code}")
+            except Exception as e:
+                print(f"Error fetching suggestions for '{title}': {e}")
+
+    else:
+        print("No username in session. Suggestions will not be fetched.")
+
+    # Render the index template with the suggestions
+    return render_template('index.html', suggestions=suggestions)
 
 @app.route('/search')
 def search_page():
