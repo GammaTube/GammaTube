@@ -170,7 +170,7 @@ def search_page():
     if query:
         try:
             # Call the external API for searching videos
-            api_url = f"https://api4gammatube.pythonanywhere.com/search_videos/{query}"
+            api_url = f"https://api4gammatube.pythonanywhere.com/Search_videos/{query}"
             response = requests.get(api_url)
 
             # Check if the API call was successful
@@ -214,7 +214,7 @@ def api_search():
 
     try:
         # Call the external API for searching videos
-        api_url = f"https://api4gammatube.pythonanywhere.com/search_videos/{query}"
+        api_url = f"https://api4gammatube.pythonanywhere.com/Search_videos/{query}"
         response = requests.get(api_url)
         
         # Check if the API call was successful
@@ -244,48 +244,6 @@ def api_search():
     except Exception as e:
         print(f"Error during search: {e}")
         return jsonify({'error': 'An error occurred during the search'}), 500
-
-
-@app.route('/api/channel_search')
-def channel_search():
-    query = request.args.get('query', '')
-    print(f"Channel search accessed with query: {query}")
-    if not query:
-        return jsonify({'error': 'No query provided'}), 400
-
-    try:
-        # Call the external API for searching channels
-        api_url = f"https://api4gammatube.pythonanywhere.com/search_channels/{query}"
-        response = requests.get(api_url)
-        
-        # Check if the API call was successful
-        if response.status_code != 200:
-            print(f"Error from external API: {response.text}")
-            return jsonify({'error': 'Failed to fetch channel data from external source'}), 500
-        
-        # Parse the response data
-        data = response.json()
-        channels = data.get('channels', [])
-
-        # Format the results
-        formatted_channels = []
-        for item in channels:
-            title = item.get('title', 'No title')
-            channel_id = item.get('channelId', '')
-            channel_url = f'https://www.youtube.com/channel/{channel_id}' if channel_id else ''
-            thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
-
-            formatted_channels.append({
-                'title': title,
-                'url': channel_url,
-                'thumbnail': thumbnail
-            })
-
-        return jsonify(formatted_channels)
-    except Exception as e:
-        print(f"Error during channel search: {e}")
-        return jsonify({'error': 'An error occurred during the channel search'}), 500
-
 
 @app.route('/api/playlist_search')
 def playlist_search():
