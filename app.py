@@ -160,8 +160,6 @@ def get_youtube_title(video_id):
 def index():
     print("Index route accessed")
     return render_template('index.html')
-
-
 @app.route('/search')
 def search_page():
     query = request.args.get('query', '')
@@ -186,13 +184,12 @@ def search_page():
             formatted_videos = []
             for item in videos:
                 title = item.get('title', 'No title')
-                video_id = item.get('videoId', '')
-                video_url = f'https://www.youtube.com/watch?v={video_id}' if video_id else ''
+                video_url = item.get('url', '')
                 thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
 
                 formatted_videos.append({
                     'title': title,
-                    'src': video_url,
+                    'video_url': video_url,
                     'thumbnail': thumbnail
                 })
 
@@ -203,7 +200,6 @@ def search_page():
             return render_template('search.html', error='An error occurred during the search')
     else:
         return render_template('search.html', error='No query provided')
-
 
 @app.route('/api/search')
 def api_search():
@@ -230,13 +226,12 @@ def api_search():
         formatted_videos = []
         for item in videos:
             title = item.get('title', 'No title')
-            video_id = item.get('videoId', '')
-            video_url = f'https://www.youtube.com/watch?v={video_id}' if video_id else ''
+            video_url = item.get('url', '')
             thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
 
             formatted_videos.append({
                 'title': title,
-                'src': video_url,
+                'video_url': video_url,
                 'thumbnail': thumbnail
             })
 
@@ -270,14 +265,13 @@ def playlist_search():
         formatted_playlists = []
         for item in playlists:
             title = item.get('title', 'No title')
-            playlist_id = item.get('playlistId', '')
-            playlist_url = f'https://www.youtube.com/playlist?list={playlist_id}' if playlist_id else ''
+            playlist_url = item.get('url', '')
             thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
             video_count = item.get('videoCount', 'Unknown')
 
             formatted_playlists.append({
                 'title': title,
-                'playlistId': playlist_id,
+                'playlistId': item.get('playlist_id', ''),
                 'url': playlist_url,
                 'thumbnail': thumbnail,
                 'videoCount': video_count
