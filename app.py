@@ -160,46 +160,32 @@ def get_youtube_title(video_id):
 def index():
     print("Index route accessed")
     return render_template('index.html')
+
+
 @app.route('/search')
 def search_page():
     query = request.args.get('query', '')
     print(f"Search page accessed with query: {query}")
-    
     if query:
         try:
-            # Call the external API for searching videos
-            api_url = f"https://api4gammatube.pythonanywhere.com/Search_videos/{query}"
-            response = requests.get(api_url)
+            search = VideosSearch(query, limit=20)
+            results = search.result()
 
-            # Check if the API call was successful
-            if response.status_code != 200:
-                print(f"Error from external API: {response.text}")
-                return render_template('search.html', error='Failed to fetch video data from external source')
+            videos = []
+            for item in results['result']:
+                title = item['title']
+                video_url = 'https://www.youtube.com/watch?v=' + item['id']
+                thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
 
-            # Parse the response data
-            data = response.json()
-            videos = data.get('videos', [])
+                videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
 
-            # Format the results
-            formatted_videos = []
-            for item in videos:
-                title = item.get('title', 'No title')
-                video_url = item.get('url', '')
-                thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
-
-                formatted_videos.append({
-                    'title': title,
-                    'video_url': video_url,
-                    'thumbnail': thumbnail
-                })
-
-            return render_template('search.html', videos=formatted_videos, query=query)
-
+            return render_template('search.html', videos=videos, query=query)
         except Exception as e:
             print(f"Error during search: {e}")
             return render_template('search.html', error='An error occurred during the search')
     else:
         return render_template('search.html', error='No query provided')
+
 
 @app.route('/api/search')
 def api_search():
@@ -209,36 +195,48 @@ def api_search():
         return jsonify({'error': 'No query provided'}), 400
 
     try:
-        # Call the external API for searching videos
-        api_url = f"https://api4gammatube.pythonanywhere.com/Search_videos/{query}"
-        response = requests.get(api_url)
-        
-        # Check if the API call was successful
-        if response.status_code != 200:
-            print(f"Error from external API: {response.text}")
-            return jsonify({'error': 'Failed to fetch video data from external source'}), 500
-        
-        # Parse the response data
-        data = response.json()
-        videos = data.get('videos', [])
+        search = VideosSearch(query, limit=15)
+        results = search.result()
 
-        # Format the results
-        formatted_videos = []
-        for item in videos:
-            title = item.get('title', 'No title')
-            video_url = item.get('url', '')
-            thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
+        videos = []
+        for item in results['result']:
+            title = item['title']
+            video_url = 'https://www.youtube.com/watch?v=' + item['id']
+            thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
 
-            formatted_videos.append({
-                'title': title,
-                'video_url': video_url,
-                'thumbnail': thumbnail
-            })
+            videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
 
-        return jsonify(formatted_videos)
+        return jsonify(videos)
     except Exception as e:
         print(f"Error during search: {e}")
         return jsonify({'error': 'An error occurred during the search'}), 500
+
+
+@app.route('/api/channel_search')
+def channel_search():
+    query = request.args.get('query', '')
+    print(f"Channel search accessed with query: {query}")
+    if not query:
+        return jsonify({'error': 'No query provided'}), 400
+
+    try:
+        channel_search = ChannelsSearch(query, limit=10, region='US')
+        results = channel_search.result()
+
+        channels = []
+        for item in results['result']:
+            title = item['title']
+            channel_id = item['id']
+            channel_url = 'https://www.youtube.com/channel/' + channel_id
+            thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
+
+            channels.append({'title': title, 'url': channel_url, 'thumbnail': thumbnail})
+
+        return jsonify(channels)
+    except Exception as e:
+        print(f"Error during channel search: {e}")
+        return jsonify({'error': 'An error occurred during the channel search'}), 500
+
 
 @app.route('/api/playlist_search')
 def playlist_search():
@@ -248,7 +246,7 @@ def playlist_search():
         return jsonify({'error': 'No query provided'}), 400
 
     try:
-        # Call the external API for searching playlists
+        # Call the external API
         api_url = f"https://api4gammatube.pythonanywhere.com/search_playlists/{query}"
         response = requests.get(api_url)
         
@@ -265,13 +263,14 @@ def playlist_search():
         formatted_playlists = []
         for item in playlists:
             title = item.get('title', 'No title')
-            playlist_url = item.get('playlist_url', '')
             thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
+            playlist_url = item.get('url', '')
+            playlist_id = item.get('playlistId', '')
             video_count = item.get('videoCount', 'Unknown')
 
             formatted_playlists.append({
                 'title': title,
-                'playlistId': item.get('playlist_id', ''),
+                'playlistId': playlist_id,
                 'url': playlist_url,
                 'thumbnail': thumbnail,
                 'videoCount': video_count
