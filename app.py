@@ -265,7 +265,7 @@ def playlist_search():
         formatted_playlists = []
         for item in playlists:
             title = item.get('title', 'No title')
-            playlist_url = item.get('url', '')
+            playlist_url = item.get('playlist_url', '')
             thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
             video_count = item.get('videoCount', 'Unknown')
 
