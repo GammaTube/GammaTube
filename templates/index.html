@@ -264,57 +264,11 @@
 
     <div id="suggested-videos">
         <h2>Suggested Videos</h2>
-        <div class="suggested-video-card">
-            <a href="/watch?v=s1sKUr3euhE">
-                <img src="https://img.youtube.com/vi/s1sKUr3euhE/hqdefault.jpg" alt="Dragon Ball Super | Tournament of Power Full Fight English Dub Dragon Ball Super | Tournament of Power Full Fight English Dub">
-                <h3>Dragon Ball Super | Tournament of Power Full Fight English Dub Dragon Ball Super | Tournament of Power Full Fight English Dub</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=YUDbl9qBihk">
-                <img src="https://img.youtube.com/vi/YUDbl9qBihk/hqdefault.jpg" alt="Dragon Ball DAIMA The Opening animation / Dragon Ball DAIMA The Opening animation / Jaka Jaan">
-                <h3>Dragon Ball DAIMA The Opening animation / Dragon Ball DAIMA The Opening animation / Jaka Jaan</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=R4vjJrGeh1c">
-                <img src="https://img.youtube.com/vi/R4vjJrGeh1c/hqdefault.jpg" alt="Dragon Ball Z Opening Theme Song Rock the Dragon 720p HD) YouTube">
-                <h3>Dragon Ball Z Opening Theme Song Rock the Dragon 720p HD) YouTube</h3>
-            </a>
-        </div>
-        <!-- Additional child-appropriate video suggestions -->
-        <div class="suggested-video-card">
-            <a href="/watch?v=ROnd7d4axHo">
-                <img src="https://img.youtube.com/vi/ROnd7d4axHo/hqdefault.jpg" alt="[HD]Dragon Ball English Intro with lyrics - Mystical Adventure!">
-                <h3>[HD]Dragon Ball English Intro with lyrics - Mystical Adventure!</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=OK1ZrwR5NWQ">
-                <img src="https://img.youtube.com/vi/OK1ZrwR5NWQ/hqdefault.jpg" alt="All Dragon Ball Anime Openings Full Version (Updated)">
-                <h3>All Dragon Ball Anime Openings Full Version (Updated)</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=GDmNktu_bGE">
-                <img src="https://img.youtube.com/vi/GDmNktu_bGE/hqdefault.jpg" alt="Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial">
-                <h3>Dragon Ball Super Full Episodes ⚡️ Season 1 Episode 1 ⚡️ Cartoons  @POPUKOfficial</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=MyBb5Dk4lzs">
-                <img src="https://img.youtube.com/vi/MyBb5Dk4lzs/hqdefault.jpg" alt="Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes">
-                <h3>Rise of the Snakes - S1 E1 | LEGO NINJAGO | Full Episodes</h3>
-            </a>
-        </div>
-        <div class="suggested-video-card">
-            <a href="/watch?v=WFbXi8SMgNA">
-                <img src="https://img.youtube.com/vi/WFbXi8SMgNA/hqdefault.jpg" alt="Home - S1 E2 | | LEGO NINJAGO | Full Episodes">
-                <h3>Home - S1 E2 | | LEGO NINJAGO | Full Episodes</h3>
-            </a>
+        <div id="suggestion-container">
+            <!-- Suggestions will be dynamically inserted here -->
         </div>
     </div>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const menuButton = document.getElementById('menu-button');
@@ -396,6 +350,50 @@ window.addEventListener('DOMContentLoaded', fetchMode);
                 }
             }
         });
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const suggestionContainer = document.getElementById('suggestion-container');
+
+    // Fetch suggestions from the server
+    async function fetchSuggestions() {
+        try {
+            const response = await fetch('/get_suggestions'); // API call to get suggestions
+            if (response.ok) {
+                const suggestions = await response.json();
+
+                if (suggestions.length) {
+                    // Clear existing content
+                    suggestionContainer.innerHTML = '';
+
+                    // Populate fetched suggestions
+                    suggestions.forEach(suggestion => {
+                        const videoCard = document.createElement('div');
+                        videoCard.classList.add('suggested-video-card');
+
+                        videoCard.innerHTML = `
+                            <a href="/watch?v=${suggestion.video_id}">
+                                <img src="${suggestion.thumbnail}" alt="${suggestion.title}">
+                                <h3>${suggestion.title}</h3>
+                            </a>
+                        `;
+                        suggestionContainer.appendChild(videoCard);
+                    });
+                } else {
+                    suggestionContainer.innerHTML = '<p>No suggestions available.</p>';
+                }
+            } else {
+                console.error('Failed to fetch suggestions:', response.statusText);
+                suggestionContainer.innerHTML = '<p>Error fetching suggestions.</p>';
+            }
+        } catch (error) {
+            console.error('Error fetching suggestions:', error);
+            suggestionContainer.innerHTML = '<p>Error fetching suggestions.</p>';
+        }
+    }
+
+    // Fetch and populate suggestions on page load
+    fetchSuggestions();
+});
     </script>
     <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
 </body>
