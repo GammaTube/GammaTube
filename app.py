@@ -161,23 +161,38 @@ def index():
     print("Index route accessed")
     return render_template('index.html')
 
+# Helper function to interact with the Gammatube API
+def search_videos(query):
+    try:
+        response = requests.get(f"https://api4gammatube.pythonanywhere.com/Search_videos/{query}")
+        response_data = response.json()
+
+        if "error" in response_data:
+            return {"error": response_data["error"]}
+
+        videos = []
+        for item in response_data.get("videos", []):
+            videos.append({
+                "title": item["title"],
+                "src": item["url"],
+                "thumbnail": item["thumbnail"]
+            })
+
+        return videos
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.route('/search')
 def search_page():
     query = request.args.get('query', '')
     print(f"Search page accessed with query: {query}")
+
     if query:
         try:
-            search = VideosSearch(query, limit=20)
-            results = search.result()
+            videos = search_videos(query)
 
-            videos = []
-            for item in results['result']:
-                title = item['title']
-                video_url = 'https://www.youtube.com/watch?v=' + item['id']
-                thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-
-                videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
+            if isinstance(videos, dict) and "error" in videos:
+                return render_template('search.html', error=videos["error"])
 
             return render_template('search.html', videos=videos, query=query)
         except Exception as e:
@@ -186,32 +201,25 @@ def search_page():
     else:
         return render_template('search.html', error='No query provided')
 
-
 @app.route('/api/search')
 def api_search():
     query = request.args.get('query', '')
     print(f"API search accessed with query: {query}")
+
     if not query:
         return jsonify({'error': 'No query provided'}), 400
 
     try:
-        search = VideosSearch(query, limit=15)
-        results = search.result()
+        videos = search_videos(query)
 
-        videos = []
-        for item in results['result']:
-            title = item['title']
-            video_url = 'https://www.youtube.com/watch?v=' + item['id']
-            thumbnail = item['thumbnails'][0]['url'] if item['thumbnails'] else 'https://via.placeholder.com/120x90'
-
-            videos.append({'title': title, 'src': video_url, 'thumbnail': thumbnail})
+        if isinstance(videos, dict) and "error" in videos:
+            return jsonify({'error': videos["error"]}), 500
 
         return jsonify(videos)
     except Exception as e:
         print(f"Error during search: {e}")
         return jsonify({'error': 'An error occurred during the search'}), 500
-
-
+        
 @app.route('/api/channel_search')
 def channel_search():
     query = request.args.get('query', '')
