@@ -127,99 +127,99 @@
         <p class="error" id="error-message"></p>
     </div>
 
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const signupButton = document.getElementById('signup-button');
-            const errorMessage = document.getElementById('error-message');
-
-            signupButton.addEventListener('click', async () => {
-                errorMessage.textContent = '';
-
-                const username = document.getElementById('username').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-
-                if (username && email && password && confirmPassword) {
-                    if (password === confirmPassword) {
-                        try {
-                            const response = await fetch('/signup', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ username, email, password })
-                            });
-
-                            if (!response.ok) {
-                                const errorResult = await response.json();
-                                errorMessage.textContent = errorResult.message;
-                                return;
+    <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const signupButton = document.getElementById('signup-button');
+                const errorMessage = document.getElementById('error-message');
+    
+                signupButton.addEventListener('click', async () => {
+                    errorMessage.textContent = '';
+    
+                    const username = document.getElementById('username').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirm-password').value;
+    
+                    if (username && email && password && confirmPassword) {
+                        if (password === confirmPassword) {
+                            try {
+                                const response = await fetch('/signup', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ username, email, password })
+                                });
+    
+                                if (!response.ok) {
+                                    const errorResult = await response.json();
+                                    errorMessage.textContent = errorResult.message;
+                                    return;
+                                }
+    
+                                const result = await response.json();
+    
+                                if (result.success) {
+                                    alert(result.message);
+                                    window.location.href = '/login';
+                                } else {
+                                    errorMessage.textContent = result.message;
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                errorMessage.textContent = 'An error occurred. Please try again.';
                             }
-
-                            const result = await response.json();
-
-                            if (result.success) {
-                                alert(result.message);
-                                window.location.href = '/login';
-                            } else {
-                                errorMessage.textContent = result.message;
-                            }
-                        } catch (error) {
-                            console.error('Error:', error);
-                            errorMessage.textContent = 'An error occurred. Please try again.';
+                        } else {
+                            errorMessage.textContent = 'Passwords do not match';
                         }
                     } else {
-                        errorMessage.textContent = 'Passwords do not match';
+                        errorMessage.textContent = 'Please fill in all fields';
                     }
-                } else {
-                    errorMessage.textContent = 'Please fill in all fields';
-                }
-            });
-
-    // Function to fetch the user's saved mode from the server
-    async function fetchSavedMode() {
-        try {
-            const response = await fetch('/get_mode'); // API call to get the user's saved mode
-            const data = await response.json();
-            return data.mode; // Return the mode (e.g., 'dark' or 'light') from the response
-        } catch (error) {
-            console.error('Error fetching saved mode:', error);
-            return null; // Fallback in case of an error
-        }
-    }
+                });
     
-    // Function to apply dark mode
-    function applyDarkMode() {
-        document.body.classList.add('dark-mode');
-    }
-    
-    // Function to remove dark mode
-    function removeDarkMode() {
-        document.body.classList.remove('dark-mode');
-    }
-
-    // Function to initialize the mode based on user preference or system settings
-    async function initializeMode() {
-        // Fetch the saved mode from the server
-        const savedMode = await fetchSavedMode();
-    
-        if (savedMode === 'dark') {
-            // Apply saved dark mode preference
-            applyDarkMode();
-        } else if (savedMode === 'light') {
-            // Ensure light mode is applied
-            removeDarkMode();
-        } else {
-            // Fallback to system preference if no saved mode exists
-            const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (systemPrefersDark) {
-                applyDarkMode();
+        // Function to fetch the user's saved mode from the server
+        async function fetchSavedMode() {
+            try {
+                const response = await fetch('/get_mode'); // API call to get the user's saved mode
+                const data = await response.json();
+                return data.mode; // Return the mode (e.g., 'dark' or 'light') from the response
+            } catch (error) {
+                console.error('Error fetching saved mode:', error);
+                return null; // Fallback in case of an error
             }
         }
-    }
-    // Call initializeMode when the page loads
-    window.addEventListener('DOMContentLoaded', initializeMode);
-</script>
+        
+        // Function to apply dark mode
+        function applyDarkMode() {
+            document.body.classList.add('dark-mode');
+        }
+        
+        // Function to remove dark mode
+        function removeDarkMode() {
+            document.body.classList.remove('dark-mode');
+        }
+    
+        // Function to initialize the mode based on user preference or system settings
+        async function initializeMode() {
+            // Fetch the saved mode from the server
+            const savedMode = await fetchSavedMode();
+        
+            if (savedMode === 'dark') {
+                // Apply saved dark mode preference
+                applyDarkMode();
+            } else if (savedMode === 'light') {
+                // Ensure light mode is applied
+                removeDarkMode();
+            } else {
+                // Fallback to system preference if no saved mode exists
+                const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (systemPrefersDark) {
+                    applyDarkMode();
+                }
+            }
+        }
+        // Call initializeMode when the page loads
+        window.addEventListener('DOMContentLoaded', initializeMode);
+    </script>
 </body>
 </html>
