@@ -177,50 +177,48 @@
                 }
             });
 
-// Function to fetch the user's saved mode from the server
-async function fetchSavedMode() {
-    try {
-        const response = await fetch('/get_mode'); // API call to get the user's saved mode
-        const data = await response.json();
-        return data.mode; // Return the mode (e.g., 'dark' or 'light') from the response
-    } catch (error) {
-        console.error('Error fetching saved mode:', error);
-        return null; // Fallback in case of an error
-    }
-}
-
-// Function to apply dark mode
-function applyDarkMode() {
-    document.body.classList.add('dark-mode');
-}
-
-// Function to remove dark mode
-function removeDarkMode() {
-    document.body.classList.remove('dark-mode');
-}
-
-// Function to initialize the mode based on user preference or system settings
-async function initializeMode() {
-    // Fetch the saved mode from the server
-    const savedMode = await fetchSavedMode();
-
-    if (savedMode === 'dark') {
-        // Apply saved dark mode preference
-        applyDarkMode();
-    } else if (savedMode === 'light') {
-        // Ensure light mode is applied
-        removeDarkMode();
-    } else {
-        // Fallback to system preference if no saved mode exists
-        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (systemPrefersDark) {
-            applyDarkMode();
+    // Function to fetch the user's saved mode from the server
+    async function fetchSavedMode() {
+        try {
+            const response = await fetch('/get_mode'); // API call to get the user's saved mode
+            const data = await response.json();
+            return data.mode; // Return the mode (e.g., 'dark' or 'light') from the response
+        } catch (error) {
+            console.error('Error fetching saved mode:', error);
+            return null; // Fallback in case of an error
         }
     }
-}
+    
+    // Function to apply dark mode
+    function applyDarkMode() {
+        document.body.classList.add('dark-mode');
+    }
+    
+    // Function to remove dark mode
+    function removeDarkMode() {
+        document.body.classList.remove('dark-mode');
+    }
 
+    // Function to initialize the mode based on user preference or system settings
+    async function initializeMode() {
+        // Fetch the saved mode from the server
+        const savedMode = await fetchSavedMode();
+    
+        if (savedMode === 'dark') {
+            // Apply saved dark mode preference
+            applyDarkMode();
+        } else if (savedMode === 'light') {
+            // Ensure light mode is applied
+            removeDarkMode();
+        } else {
+            // Fallback to system preference if no saved mode exists
+            const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPrefersDark) {
+                applyDarkMode();
+            }
+        }
+    }
     // Call initializeMode when the page loads
     window.addEventListener('DOMContentLoaded', initializeMode);
-</script>
-</body>
+</script></body>
 </html>
