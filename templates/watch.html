@@ -254,7 +254,7 @@
 
             async function fetchSuggestedVideos(videoId) {
                 try {
-                    const response = await fetch(`/watch/Suggested_videos/${videoId}`);
+                    const response = await fetch(`/watch/suggested_videos/${videoId}`);
                     const data = await response.json();
                     populateSuggestedVideos(data.videos);
                 } catch (error) {
@@ -278,7 +278,7 @@
 
             async function fetchVideoTitle(videoId) {
                 try {
-                    const response = await fetch(`/watch/Video_title/${videoId}`);
+                    const response = await fetch(`/watch/video_title/${videoId}`);
                     const data = await response.json();
                     return data.title;
                 } catch (error) {
