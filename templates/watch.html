@@ -12,7 +12,26 @@
     <meta name="googlebot" content="index, follow">
     <meta name="bingbot" content="index, follow">
     
-    <title>{{ (video_name[:50] + '...') if video_name|length > 50 else video_name }} - GammaTube</title>
+   <!-- Open Graph Meta Tags for Discord-style Embedding -->
+    <meta property="og:title" content="{{ (video_name[:50] + '...') if video_name|length > 50 else video_name }} - GammaTube">
+    <meta property="og:description" content="Watch {{ video_name }} on GammaTube.">
+    <meta property="og:url" content="https://gammatube.koyeb.app/watch?v={{ video_id }}">
+    <meta property="og:image" content="https://i.ytimg.com/vi/{{ video_id }}/hqdefault.jpg">
+    <meta property="og:type" content="video.other">
+    <meta property="og:video" content="https://www.youtube.com/embed/{{ video_id }}">
+    <meta property="og:video:secure_url" content="https://www.youtube.com/embed/{{ video_id }}">
+    <meta property="og:video:type" content="text/html">
+    <meta property="og:video:width" content="1280">
+    <meta property="og:video:height" content="720">
+    <meta name="twitter:card" content="player">
+    <meta name="twitter:site" content="@GammaTube">
+    <meta name="twitter:title" content="{{ video_name }}">
+    <meta name="twitter:description" content="Watch {{ video_name }} on GammaTube.">
+    <meta name="twitter:image" content="https://i.ytimg.com/vi/{{ video_id }}/hqdefault.jpg">
+    <meta name="twitter:player" content="https://www.youtube.com/embed/{{ video_id }}">
+    <meta name="twitter:player:width" content="1280">
+    <meta name="twitter:player:height" content="720">
+    <title>{{ (video_name[:50] + '...') if video_name|length > 50 else video_name }} - GammaTube</title>    
     
     <link rel="icon" type="image/png" sizes="32x32" href="https://convey-gammatube.koyeb.app/favicon.png">
     
