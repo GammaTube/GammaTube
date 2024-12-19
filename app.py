@@ -246,7 +246,6 @@ def channel_search():
         print(f"Error during channel search: {e}")
         return jsonify({'error': 'An error occurred during the channel search'}), 500
 
-
 @app.route('/api/playlist_search')
 def playlist_search():
     query = request.args.get('query', '')
@@ -273,9 +272,9 @@ def playlist_search():
         for item in playlists:
             title = item.get('title', 'No title')
             thumbnail = item.get('thumbnail', 'https://via.placeholder.com/120x90')
-            playlist_url = item.get('url', '')
-            playlist_id = item.get('playlistId', '')
-            video_count = item.get('videoCount', 'Unknown')
+            playlist_url = item.get('playlist_url', '')
+            playlist_id = item.get('playlist_id', '')
+            video_count = item.get('video_count', 'Unknown')
 
             formatted_playlists.append({
                 'title': title,
