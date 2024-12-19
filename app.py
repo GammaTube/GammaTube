@@ -698,6 +698,30 @@ def change_password():
     db.session.commit()
 
     return jsonify(success=True, message='Password changed successfully!'), 200
+    
+# Proxy route for Suggested videos
+@app.route('/watch/suggested_videos/<video_id>', methods=['GET'])
+def get_suggested_videos(video_id):
+    # External API URL
+    api_url = f"https://api4gammatube.pythonanywhere.com/Suggested_videos/{video_id}"
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()  # Will raise an HTTPError if the response code is not 200
+        return jsonify(response.json())  # Return the JSON data from the external API
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+
+# Proxy route for Video title
+@app.route('/watch/video_title/<video_id>', methods=['GET'])
+def get_video_title(video_id):
+    # External API URL
+    api_url = f"https://api4gammatube.pythonanywhere.com/Video_title/{video_id}"
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()  # Will raise an HTTPError if the response code is not 200
+        return jsonify(response.json())  # Return the JSON data from the external API
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):
