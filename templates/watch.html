@@ -11,28 +11,9 @@
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
     <meta name="bingbot" content="index, follow">
-
-   <!-- Open Graph Meta Tags for Discord-style Embedding -->
-    <meta property="og:title" content="{{ (video_name[:50] + '...') if video_name|length > 50 else video_name }} - GammaTube">
-    <meta property="og:description" content="Watch {{ video_name }} on GammaTube.">
-    <meta property="og:url" content="https://gammatube.koyeb.app/watch?v={{ video_id }}">
-    <meta property="og:image" content="https://i.ytimg.com/vi/{{ video_id }}/hqdefault.jpg">
-    <meta property="og:type" content="video.other">
-    <meta property="og:video" content="https://www.youtube.com/embed/{{ video_id }}">
-    <meta property="og:video:secure_url" content="https://www.youtube.com/embed/{{ video_id }}">
-    <meta property="og:video:type" content="text/html">
-    <meta property="og:video:width" content="1280">
-    <meta property="og:video:height" content="720">
-    <meta name="twitter:card" content="player">
-    <meta name="twitter:site" content="@GammaTube">
-    <meta name="twitter:title" content="{{ video_name }}">
-    <meta name="twitter:description" content="Watch {{ video_name }} on GammaTube.">
-    <meta name="twitter:image" content="https://i.ytimg.com/vi/{{ video_id }}/hqdefault.jpg">
-    <meta name="twitter:player" content="https://www.youtube.com/embed/{{ video_id }}">
-    <meta name="twitter:player:width" content="1280">
-    <meta name="twitter:player:height" content="720">
+    
     <title>{{ (video_name[:50] + '...') if video_name|length > 50 else video_name }} - GammaTube</title>
-        
+    
     <link rel="icon" type="image/png" sizes="32x32" href="https://convey-gammatube.koyeb.app/favicon.png">
     
     <style>
@@ -63,6 +44,13 @@
         body.dark-mode {
             background-color: var(--background-dark);
             color: var(--text-dark);
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
         }
 
         #menu-button {
@@ -173,6 +161,37 @@
             height: 100%;
             border: none;
         }
+
+        .suggested-videos {
+            width: 300px;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .suggested-video-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .suggested-video-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .suggested-video-card a {
+            color: var(--text-light);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .suggested-video-card a:hover {
+            color: var(--primary-light);
+        }
     </style>
 </head>
 <body>
@@ -184,13 +203,13 @@
         <button onclick="window.location.href='https://gammatube.koyeb.app/'">Home</button>
     </div>
 
-    <div id="search-container">
-        <input type="text" id="search-bar" placeholder="Search for videos...">
-        <button id="search-button">Search</button>
-    </div>
-
-    <div class="video-player" id="video-player">
-        <!-- Video iframe will be inserted here -->
+    <div class="content">
+        <div id="video-player" class="video-player">
+            <!-- Video iframe will be inserted here -->
+        </div>
+        <div id="suggested-videos" class="suggested-videos">
+            <!-- Suggested videos will be populated here -->
+        </div>
     </div>
 
     <script>
@@ -201,66 +220,20 @@
             const searchButton = document.getElementById('search-button');
             const searchBar = document.getElementById('search-bar');
             const videoPlayer = document.getElementById('video-player');
+            const suggestedVideosContainer = document.getElementById('suggested-videos');
             const videoId = new URLSearchParams(window.location.search).get('v');
 
             if (videoId) {
                 videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+
+                fetchSuggestedVideos(videoId);
             }
 
             menuButton.addEventListener('click', () => {
                 menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
             });
 
-// Function to fetch the mode from the server
-async function fetchMode() {
-    try {
-        const response = await fetch('/get_mode'); // API call to get mode
-        const data = await response.json();
-        if (data.mode === 'dark') {
-            applyDarkMode(); // Apply dark mode if the user's mode is 'dark'
-        }
-    } catch (error) {
-        console.error('Error fetching mode:', error);
-    }
-}
-
-// Function to apply dark mode
-function applyDarkMode() {
-    document.body.classList.add('dark-mode');
-    menu.classList.add('dark-mode');
-    document.querySelectorAll('.video-card').forEach(card => card.classList.add('dark-mode'));
-    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.add('dark-mode'));
-}
-
-// Function to remove dark mode
-function removeDarkMode() {
-    document.body.classList.remove('dark-mode');
-    menu.classList.remove('dark-mode');
-    document.querySelectorAll('.video-card').forEach(card => card.classList.remove('dark-mode'));
-    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.remove('dark-mode'));
-}
-
-// Toggle dark mode and update the mode on the server
-async function toggleDarkMode() {
-    const isDarkMode = document.body.classList.toggle('dark-mode');
-    menu.classList.toggle('dark-mode');
-    document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
-    document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
-
-    // Update the mode on the server
-    const mode = isDarkMode ? 'dark' : 'light';
-    try {
-        await fetch(`/update_mode/${mode}`, { method: 'POST' });
-    } catch (error) {
-        console.error('Error updating mode:', error);
-    }
-}
-
-// Add event listener for the toggle button
-toggleDarkModeButton.addEventListener('click', toggleDarkMode);
-
-// Fetch and apply the mode when the page loads
-window.addEventListener('DOMContentLoaded', fetchMode);
+            toggleDarkModeButton.addEventListener('click', toggleDarkMode);
 
             searchButton.addEventListener('click', () => {
                 searchVideos();
@@ -278,9 +251,57 @@ window.addEventListener('DOMContentLoaded', fetchMode);
                     window.location.href = `/search?query=${encodeURIComponent(query)}`;
                 }
             }
+
+            async function fetchSuggestedVideos(videoId) {
+                try {
+                    const response = await fetch(`/watch/Suggested_videos/${videoId}`);
+                    const data = await response.json();
+                    populateSuggestedVideos(data.videos);
+                } catch (error) {
+                    console.error('Error fetching suggested videos:', error);
+                }
+            }
+
+            async function populateSuggestedVideos(videos) {
+                suggestedVideosContainer.innerHTML = '';
+                for (const video of videos) {
+                    const videoTitle = await fetchVideoTitle(video.video_id);
+                    const videoCard = document.createElement('div');
+                    videoCard.classList.add('suggested-video-card');
+                    videoCard.innerHTML = `
+                        <img src="${video.thumbnail}" alt="${video.title}">
+                        <a href="https://gammatube.koyeb.app/watch?v=${video.video_id}" target="_blank">${videoTitle}</a>
+                    `;
+                    suggestedVideosContainer.appendChild(videoCard);
+                }
+            }
+
+            async function fetchVideoTitle(videoId) {
+                try {
+                    const response = await fetch(`/watch/Video_title/${videoId}`);
+                    const data = await response.json();
+                    return data.title;
+                } catch (error) {
+                    console.error('Error fetching video title:', error);
+                    return 'Unknown Title';
+                }
+            }
+
+            // Function to toggle dark mode
+            async function toggleDarkMode() {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                menu.classList.toggle('dark-mode');
+                document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('dark-mode'));
+                document.querySelectorAll('.suggested-video-card').forEach(card => card.classList.toggle('dark-mode'));
+                
+                const mode = isDarkMode ? 'dark' : 'light';
+                try {
+                    await fetch(`/update_mode/${mode}`, { method: 'POST' });
+                } catch (error) {
+                    console.error('Error updating mode:', error);
+                }
+            }
         });
     </script>
-    <p><a href="https://appdata.freewebsitetoapp.co.in/app-data/free-apps/14512748160/1K2vsLfgx/app-debug.apk">Download</a>
-    <h1></h1>
 </body>
 </html>
